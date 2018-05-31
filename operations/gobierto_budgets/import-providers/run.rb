@@ -77,6 +77,7 @@ base_attributes = if place
 
 puts "[START] import-providers/run.rb data_file=#{data_file}"
 
+nitems = 0
 CSV.foreach(data_file, headers: true) do |row|
   date = parse_mataro_data(row['DATA_FRA'])
   next if date.nil?
@@ -94,6 +95,7 @@ CSV.foreach(data_file, headers: true) do |row|
     functional_budget_line_code: nil
   })
 
+  nitems += 1
   id = [attributes[:location_id], date.year, attributes[:invoice_id]].join('/')
   index_request_body << {index: {_id: id, data: attributes}}
 end
