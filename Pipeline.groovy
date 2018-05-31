@@ -34,14 +34,14 @@ pipeline {
         }
         stage('Transform > Transform planned budgets data files') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb /tmp/mataro/budgets-planned-2017.json /tmp/mataro/budgets-planned-2017-transformed.json 2017"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb /tmp/mataro/budgets-planned-2018.json /tmp/mataro/budgets-planned-2018-transformed.json 2018"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb /tmp/mataro/pressupost_2017_utf8_clean.csv /tmp/mataro/budgets-planned-2017-transformed.json 2017"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb /tmp/mataro/pressupost_2018_utf8_clean.csv /tmp/mataro/budgets-planned-2018-transformed.json 2018"
             }
         }
         stage('Transform > Transform executed budgets data files') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb /tmp/mataro/budgets-executed-expense-2018.json /tmp/mataro/budgets-executed-expense-2018-transformed.json 2018 G"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb /tmp/mataro/budgets-executed-income-2018.json  /tmp/mataro/budgets-executed-income-2018-transformed.json 2018 I"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb /tmp/mataro/pressupost_2017_utf8_clean.csv /tmp/mataro/budgets-executed-2017-transformed.json 2017"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb /tmp/mataro/pressupost_2018_utf8_clean.csv /tmp/mataro/budgets-executed-2018-transformed.json 2018"
             }
         }
         stage('Transform > Transform planned updated budgets data files') {
