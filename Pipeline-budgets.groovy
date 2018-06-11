@@ -53,20 +53,20 @@ pipeline {
         }
         stage('Load > Import planned budgets') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2017-transformed.json 2017"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2018-transformed.json 2018"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2017-transformed.json 2017"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2018-transformed.json 2018"
             }
         }
         stage('Load > Import executed budgets') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2017-transformed.json 2017"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2018-transformed.json 2018"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2017-transformed.json 2017"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2018-transformed.json 2018"
             }
         }
         stage('Load > Import planned updated budgets') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2017-transformed.json 2017"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2018-transformed.json 2018"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2017-transformed.json 2017"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2018-transformed.json 2018"
             }
         }
         stage('Load > Calculate totals') {
