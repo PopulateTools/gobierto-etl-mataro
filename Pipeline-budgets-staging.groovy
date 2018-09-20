@@ -6,7 +6,7 @@ pipeline {
         GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
         GOBIERTO = "/var/www/gobierto_staging/current/"
-        WORKING_DIR="/tmp/mataro"
+        WORKING_DIR = "/tmp/mataro"
     }
     stages {
         stage('Extract > Download data sources') {
