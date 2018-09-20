@@ -11,8 +11,8 @@ pipeline {
     stages {
         stage('Extract > Download data sources') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2017.csv' ${WORKING_DIR}/pressupost_2017.csv"
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2018.csv' ${WORKING_DIR}/pressupost_2018.csv"
+                // sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2017.csv' ${WORKING_DIR}/pressupost_2017.csv"
+                // sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2018.csv' ${WORKING_DIR}/pressupost_2018.csv"
             }
         }
         stage('Extract > Convert data to UTF8') {
