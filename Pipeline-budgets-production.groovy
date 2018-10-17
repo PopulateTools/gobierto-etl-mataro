@@ -9,34 +9,44 @@ pipeline {
         WORKING_DIR = "/tmp/mataro"
     }
     stages {
+        stage('Clean working dir') {
+          steps {
+              sh "rm -rf ${WORKING_DIR}"
+          }
+        }
         stage('Extract > Download data sources') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2017.csv' ${WORKING_DIR}/pressupost_2017.csv"
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2018.csv' ${WORKING_DIR}/pressupost_2018.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/proposta_pressupost_2019.csv' ${WORKING_DIR}/pressupost_2019.csv"
             }
         }
         stage('Extract > Convert data to UTF8') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/pressupost_2017.csv ${WORKING_DIR}/pressupost_2017_utf8.csv"
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/pressupost_2018.csv ${WORKING_DIR}/pressupost_2018_utf8.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/pressupost_2019.csv ${WORKING_DIR}/pressupost_2019_utf8.csv"
             }
         }
         stage('Extract > Clean wrong quotes') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/clean-quotes/run.rb ${WORKING_DIR}/pressupost_2017_utf8.csv ${WORKING_DIR}/pressupost_2017_utf8_clean.csv"
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/clean-quotes/run.rb ${WORKING_DIR}/pressupost_2018_utf8.csv ${WORKING_DIR}/pressupost_2018_utf8_clean.csv"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/clean-quotes/run.rb ${WORKING_DIR}/pressupost_2019_utf8.csv ${WORKING_DIR}/pressupost_2019_utf8_clean.csv"
             }
         }
         stage('Extract > Check CSV format') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/pressupost_2017_utf8_clean.csv"
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/pressupost_2018_utf8_clean.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/pressupost_2019_utf8_clean.csv"
             }
         }
         stage('Transform > Transform planned budgets data files') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb ${WORKING_DIR}/pressupost_2017_utf8_clean.csv ${WORKING_DIR}/budgets-planned-2017-transformed.json 2017"
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb ${WORKING_DIR}/pressupost_2018_utf8_clean.csv ${WORKING_DIR}/budgets-planned-2018-transformed.json 2018"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb ${WORKING_DIR}/pressupost_2019_utf8_clean.csv ${WORKING_DIR}/budgets-planned-2019-transformed.json 2019"
             }
         }
         stage('Transform > Transform executed budgets data files') {
@@ -55,6 +65,7 @@ pipeline {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2017-transformed.json 2017"
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2018-transformed.json 2018"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2019-transformed.json 2019"
             }
         }
         stage('Load > Import executed budgets') {
@@ -72,7 +83,7 @@ pipeline {
         stage('Load > Calculate totals') {
             steps {
               sh "echo '8121' > ${WORKING_DIR}/organization.id.txt"
-              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/update_total_budget/run.rb '2017 2018' ${WORKING_DIR}/organization.id.txt"
+              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/update_total_budget/run.rb '2017 2018 2019' ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Load > Calculate bubbles') {
@@ -82,7 +93,7 @@ pipeline {
         }
         stage('Load > Calculate annual data') {
             steps {
-              sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto_budgets/annual_data/run.rb '2017 2018' ${WORKING_DIR}/organization.id.txt"
+              sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto_budgets/annual_data/run.rb '2017 2018 2019' ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Load > Publish activity') {
@@ -98,7 +109,6 @@ pipeline {
                 charset: 'UTF-8',
                 subject: "ERROR CI: Project name -> ${env.JOB_NAME}",
                 to: email
-
         }
     }
 }

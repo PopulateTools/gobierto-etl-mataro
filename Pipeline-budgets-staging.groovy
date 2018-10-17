@@ -9,6 +9,11 @@ pipeline {
         WORKING_DIR = "/tmp/mataro"
     }
     stages {
+        stage('Clean working dir') {
+          steps {
+              sh "rm -rf ${WORKING_DIR}"
+          }
+        }
         stage('Extract > Download data sources') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2017.csv' ${WORKING_DIR}/pressupost_2017.csv"
