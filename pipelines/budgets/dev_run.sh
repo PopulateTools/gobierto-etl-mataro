@@ -54,8 +54,8 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2018-transformed.json 2018
 
 # Load > Import custom categories
-cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv mataro.gobierto.test
-cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2018_utf8_clean.csv mataro.gobierto.test
+cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv mataro.gobierto.test
+cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2018_utf8_clean.csv mataro.gobierto.test
 
 # Load > Calculate totals
 echo $MATARO_INE_CODE > $WORKING_DIR/organization.id.txt
