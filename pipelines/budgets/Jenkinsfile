@@ -8,6 +8,7 @@ pipeline {
         WORKING_DIR = "/tmp/mataro"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
+        // DOMAIN = "pressupost.mataro.cat"
     }
     stages {
         stage('Clean working dir') {
@@ -79,6 +80,12 @@ pipeline {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2017-transformed.json 2017"
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2018-transformed.json 2018"
+            }
+        }
+        stage('Load > Import custom categories') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/extract-custom-categories/run.rb ${WORKING_DIR}/pressupost_2019_utf8_clean.csv ${DOMAIN}"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/extract-custom-categories/run.rb ${WORKING_DIR}/pressupost_2018_utf8_clean.csv ${DOMAIN}"
             }
         }
         stage('Load > Calculate totals') {

@@ -72,7 +72,8 @@ def custom_categories_dictionary
     "Salubritat Pública",
     "Seguretat i protecció civil",
     "Transport públic",
-    "Òrgans de govern"
+    "Òrgans de govern",
+    "Aportació Tecnocampus"
   ]
 end
 
