@@ -5,8 +5,9 @@ pipeline {
         PATH = "/home/ubuntu/.rbenv/shims:$PATH"
         GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
-        GOBIERTO = "/var/www/gobierto/current/"
         WORKING_DIR = "/tmp/mataro"
+        // Variables that must be defined via Jenkins UI:
+        // GOBIERTO = "/var/www/gobierto/current"
     }
     stages {
         stage('Clean working dir') {

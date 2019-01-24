@@ -1,9 +1,11 @@
 #!/bin/bash
 
 WORKING_DIR=/tmp/mataro
+MATARO_INE_CODE=8121
 
 # Clean working dir
 rm -rf $WORKING_DIR
+mkdir $WORKING_DIR
 
 # Extract > Download data sources
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/pressupost_2017.csv" $WORKING_DIR/pressupost_2017.csv
@@ -52,7 +54,7 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2018-transformed.json 2018
 
 # Load > Calculate totals
-echo "8121" > $WORKING_DIR/organization.id.txt
+echo $MATARO_INE_CODE > $WORKING_DIR/organization.id.txt
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/update_total_budget/run.rb "2017 2018 2019" $WORKING_DIR/organization.id.txt
 
 # Load > Calculate bubbles
