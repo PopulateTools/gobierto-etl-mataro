@@ -102,6 +102,11 @@ pipeline {
               sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/publish-activity/run.rb budgets_updated ${WORKING_DIR}/organization.id.txt"
             }
         }
+        stage('Clear cache') {
+          steps {
+            sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb"
+          }
+        }
     }
     post {
         failure {

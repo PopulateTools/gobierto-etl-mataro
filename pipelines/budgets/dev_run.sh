@@ -65,3 +65,6 @@ cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/g
 
 # Load > Publish activity
 cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/publish-activity/run.rb budgets_updated $WORKING_DIR/organization.id.txt
+
+# Clear cache
+cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/clear-cache/run.rb
