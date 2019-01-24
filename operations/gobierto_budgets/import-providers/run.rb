@@ -98,8 +98,11 @@ CSV.foreach(data_file, headers: true) do |row|
   nitems += 1
   id = [attributes[:location_id], date.year, attributes[:invoice_id]].join('/')
   index_request_body << {index: {_id: id, data: attributes}}
+  if nitems % 10 == 0
+    GobiertoData::GobiertoBudgets::SearchEngine.client.bulk index: index, type: type, body: index_request_body
+    index_request_body = []
+  end
 end
 
-GobiertoData::GobiertoBudgets::SearchEngine.client.bulk index: index, type: type, body: index_request_body
 
 puts "[END] import-providers/run.rb imported #{nitems} items"
