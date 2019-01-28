@@ -54,7 +54,11 @@ CSV.read(input_file, headers: true).each do |row|
       puts raw_name
       exit
     end
-    unless category = GobiertoBudgets::Category.where(site: site, area_name: area_name, kind: kind, code: code).exists?
+    if category = GobiertoBudgets::Category.where(site: site, area_name: area_name, kind: kind, code: code).exists?
+      category.custom_name_translations = {"ca" => name, "es" => name}
+      category.save
+      puts "- Updated category #{name} (code = #{code}, kind = #{kind})"
+    else
       category = GobiertoBudgets::Category.new(site: site, area_name: area_name, kind: kind, code: code)
       category.custom_name_translations = {"ca" => name, "es" => name}
       category.save!
