@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 WORKING_DIR=/tmp/mataro
 MATARO_INE_CODE=8121
 

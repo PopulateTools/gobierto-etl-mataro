@@ -1,6 +1,8 @@
 #!/bin/bash
 
-WORKING_DIR=$WORKING_DIR
+set -e
+
+WORKING_DIR=/tmp/mataro
 MATARO_INE_CODE=8121
 
 # Clean working dir
@@ -17,7 +19,7 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/check-csv/run.rb $WORKING_DIR/providers_utf8.csv
 
 # Load > Clear previous providers
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-previous-providers/run.rb $MATARO_INE_CODE
+# cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-previous-providers/run.rb $MATARO_INE_CODE
 
 # Load > Import providers
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/import-providers/run.rb $MATARO_INE_CODE $WORKING_DIR/providers_utf8.csv
