@@ -19,12 +19,15 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/check-csv/run.rb $WORKING_DIR/providers_utf8.csv
 
 # Load > Clear previous providers
-# cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-previous-providers/run.rb $MATARO_INE_CODE
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-previous-providers/run.rb $MATARO_INE_CODE
+
+# Load > Transform providers
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-providers/run.rb $MATARO_INE_CODE $WORKING_DIR/providers_utf8.csv $WORKING_DIR/providers_utf8_transformed.json
 
 # Load > Import providers
-cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/import-providers/run.rb $MATARO_INE_CODE $WORKING_DIR/providers_utf8.csv
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-invoices/run.rb $WORKING_DIR/providers_utf8_transformed.json
 
 # Load > Publish activity
-echo "8121" > $WORKING_DIR/organization.id.txt
+echo $MATARO_INE_CODE > $WORKING_DIR/organization.id.txt
 cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/publish-activity/run.rb providers_updated $WORKING_DIR/organization.id.txt
 

@@ -11,22 +11,21 @@ Bundler.require
 #
 #  - 0: Organization ID
 #  - 1: Absolute path to a file containing a CSV of providers
+#  - 2: Output path of the JSON
 #
 # Samples:
 #
-#   /path/to/project/operations/gobierto_budgets/import-providers/run.rb 8019 input.csv
+#   /path/to/project/operations/gobierto_budgets/transform-providers/run.rb 8019 input.csv output.json
 #
 
-if ARGV.length != 2
+if ARGV.length != 3
   raise "At least one argument is required"
 end
 
-index = GobiertoData::GobiertoBudgets::ES_INDEX_POPULATE_DATA_PROVIDERS
-type =  GobiertoData::GobiertoBudgets::POPULATE_DATA_PROVIDERS_TYPE
-
 organization_id = ARGV[0].to_s
 data_file = ARGV[1]
-index_request_body = []
+output_file = ARGV[2]
+output_data = []
 
 def parse_mataro_data(raw_date)
   return nil if raw_date.blank?
@@ -75,7 +74,7 @@ base_attributes = if place
                     { location_id: organization_id, province_id: nil, autonomous_region_id: nil }
                   end
 
-puts "[START] import-providers/run.rb data_file=#{data_file}"
+puts "[START] transform-providers/run.rb data_file=#{data_file}"
 nitems = 0
 CSV.foreach(data_file, headers: true) do |row|
   date = parse_mataro_data(row['DATA_FRA'])
@@ -94,10 +93,11 @@ CSV.foreach(data_file, headers: true) do |row|
     functional_budget_line_code: nil
   })
 
-  id = [attributes[:location_id], date.year, attributes[:invoice_id]].join('/')
-  index_request_body << {index: {_id: id, data: attributes}}
+  nitems+=1
+
+  output_data << attributes
 end
 
-GobiertoData::GobiertoBudgets::SearchEngineWriting.client.bulk index: index, type: type, body: index_request_body
+File.write(output_file, output_data.to_json)
 
-puts "[END] import-providers/run.rb imported #{nitems} items"
+puts "[END] transform-providers/run.rb transformed #{nitems} items"

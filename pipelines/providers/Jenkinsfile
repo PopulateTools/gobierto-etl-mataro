@@ -31,9 +31,14 @@ pipeline {
               sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-previous-providers/run.rb ${MATARO_ID}"
             }
         }
+        stage('Load > Transform providers') {
+            steps {
+              sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-providers/run.rb ${MATARO_ID} ${WORKING_DIR}/providers_utf8.csv ${WORKING_DIR}/providers_utf8_transformed.json"
+            }
+        }
         stage('Load > Import providers') {
             steps {
-              sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/import-providers/run.rb ${MATARO_ID} ${WORKING_DIR}/providers_utf8.csv"
+              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-providers/run.rb ${WORKING_DIR}/providers_utf8_transformed.json"
             }
         }
         stage('Load > Publish activity') {
