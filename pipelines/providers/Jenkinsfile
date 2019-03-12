@@ -38,7 +38,7 @@ pipeline {
         }
         stage('Load > Import providers') {
             steps {
-              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-providers/run.rb ${WORKING_DIR}/providers_utf8_transformed.json"
+              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-invoices/run.rb ${WORKING_DIR}/providers_utf8_transformed.json"
             }
         }
         stage('Load > Publish activity') {
