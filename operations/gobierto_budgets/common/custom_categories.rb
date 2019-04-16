@@ -1,0 +1,30 @@
+# frozen_string_literal: true
+
+FIRST_LEVEL_CUSTOM_CATEGORIES = {
+  "Administració financera i tributària" => "0",
+  "Administració general" => "1",
+  "Altres" => "2",
+  "Aportació EPE TCM" => "3",
+  "Aportació PUMSA" => "4",
+  "Atenció als ciutadans" => "5",
+  "Comerç, turisme i empresa" => "6",
+  "Comunicació" => "7",
+  "Cultura" => "8",
+  "Deute públic" => "9",
+  "Enllumenat públic" => "10",
+  "Ensenyament" => "11",
+  "Esport" => "12",
+  "Foment de l'ocupació" => "13",
+  "Fons de contingència" => "14",
+  "Habitatge, urbanisme i vies públiques" => "15",
+  "Ingressos genèrics" => "16",
+  "Medi ambient, jardins i sanejament" => "17",
+  "Participació ciutadana" => "18",
+  "Protecció i promoció social" => "19",
+  "Recollida, tractament brossa i neteja viària" => "20",
+  "Salubritat Pública" => "21",
+  "Seguretat i protecció civil" => "22",
+  "Transport públic" => "23",
+  "Òrgans de govern" => "24",
+  "Aportació Tecnocampus" => "25"
+}.freeze

@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require "bundler/setup"
 Bundler.require
+
+require_relative "../common/custom_categories"
 
 require "csv"
 require "json"
@@ -45,38 +48,6 @@ base_data = {
 
 output_data = []
 
-# Duplicated
-def custom_categories_dictionary
-  [
-    "Administració financera i tributària",
-    "Administració general",
-    "Altres",
-    "Aportació EPE TCM",
-    "Aportació PUMSA",
-    "Atenció als ciutadans",
-    "Comerç, turisme i empresa",
-    "Comunicació",
-    "Cultura",
-    "Deute públic",
-    "Enllumenat públic",
-    "Ensenyament",
-    "Esport",
-    "Foment de l'ocupació",
-    "Fons de contingència",
-    "Habitatge, urbanisme i vies públiques",
-    "Ingressos genèrics",
-    "Medi ambient, jardins i sanejament",
-    "Participació ciutadana",
-    "Protecció i promoció social",
-    "Recollida, tractament brossa i neteja viària",
-    "Salubritat Pública",
-    "Seguretat i protecció civil",
-    "Transport públic",
-    "Òrgans de govern",
-    "Aportació Tecnocampus"
-  ]
-end
-
 def parse_cell(row, year, name)
   return if row['PARANYPRS'].to_i != year
   return if row['IMPASSIG'].blank?
@@ -90,7 +61,7 @@ def parse_cell(row, year, name)
   end
   re = /\A([I\d\-]+)\-(.+)\z/
   if category_name !~ re
-    category_code = custom_categories_dictionary.index(category_name).to_s
+    category_code = FIRST_LEVEL_CUSTOM_CATEGORIES[category_name].to_s
   else
     category_name.match(re)
     category_code = $1.strip
@@ -102,7 +73,7 @@ def parse_cell(row, year, name)
 
   if category_code.to_s.length == 4
     parent_category_name = row['PARCLSFUN_GRP'].strip
-    @parent_categories[category_code] = custom_categories_dictionary.index(parent_category_name)
+    @parent_categories[category_code] = FIRST_LEVEL_CUSTOM_CATEGORIES[parent_category_name]
   end
 
   @categories[kind][category_code] ||= 0

@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require "bundler/setup"
 Bundler.require
+
+require_relative "../common/custom_categories"
 
 require "csv"
 require "json"
@@ -27,10 +30,31 @@ end
 input_file = ARGV[0]
 domain = ARGV[1]
 
-site = Site.find_by! domain: domain
-area_name = 'custom'
+SITE = Site.find_by! domain: domain
+AREA_NAME = "custom"
 
-puts "[START] extract-custom-categories/run.rb with file=#{input_file} domain=#{site.domain}"
+puts "[START] extract-custom-categories/run.rb with file=#{input_file} domain=#{SITE.domain}"
+
+def create_or_update_category!(name, code, kind)
+  name_translations = { "ca" => name, "es" => name }
+  category_attrs = { site: SITE, area_name: AREA_NAME, kind: kind, code: code }
+
+  if (category = GobiertoBudgets::Category.where(category_attrs).first)
+    category.update_attributes!(custom_name_translations: name_translations)
+    puts "- Updated category #{name} (code = #{code}, kind = #{kind})"
+  else
+    GobiertoBudgets::Category.create!(
+      category_attrs.merge(custom_name_translations: name_translations)
+    )
+    puts "- Created category #{name} (code = #{code}, kind = #{kind})"
+  end
+end
+
+FIRST_LEVEL_CUSTOM_CATEGORIES.each do |category_name, category_code|
+  GobiertoData::GobiertoBudgets::ALL_KINDS.each do |kind|
+    create_or_update_category!(category_name, category_code, kind)
+  end
+end
 
 CSV.read(input_file, headers: true).each do |row|
   next if row['IMPASSIG'].blank?
@@ -54,17 +78,9 @@ CSV.read(input_file, headers: true).each do |row|
       puts raw_name
       exit
     end
-    if category = GobiertoBudgets::Category.where(site: site, area_name: area_name, kind: kind, code: code).first
-      category.custom_name_translations = {"ca" => name, "es" => name}
-      category.save
-      puts "- Updated category #{name} (code = #{code}, kind = #{kind})"
-    else
-      category = GobiertoBudgets::Category.new(site: site, area_name: area_name, kind: kind, code: code)
-      category.custom_name_translations = {"ca" => name, "es" => name}
-      category.save!
-      puts "- Created category #{name} (code = #{code}, kind = #{kind})"
-    end
+
+    create_or_update_category!(name, code, kind)
   end
 end
 
-puts "[END] extract-custom-categories/run.rb with file=#{input_file} domain=#{site.domain}"
+puts "[END] extract-custom-categories/run.rb with file=#{input_file} domain=#{SITE.domain}"
