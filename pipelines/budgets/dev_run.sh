@@ -12,7 +12,7 @@ mkdir $WORKING_DIR
 # Extract > Download data sources
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/pressupost_2017.csv" $WORKING_DIR/pressupost_2017.csv
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/pressupost_2018.csv" $WORKING_DIR/pressupost_2018.csv
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/proposta_pressupost_2019.csv" $WORKING_DIR/pressupost_2019.csv
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/pressupost_2019.csv" $WORKING_DIR/pressupost_2019.csv
 
 # Extract > Convert data to UTF8
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING_DIR/pressupost_2017.csv $WORKING_DIR/pressupost_2017_utf8.csv
@@ -37,10 +37,12 @@ cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-pla
 # Transform > Transform executed budgets data files
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-executed/run.rb $WORKING_DIR/pressupost_2017_utf8_clean.csv $WORKING_DIR/budgets-executed-2017-transformed.json 2017
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-executed/run.rb $WORKING_DIR/pressupost_2018_utf8_clean.csv $WORKING_DIR/budgets-executed-2018-transformed.json 2018
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-executed/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv $WORKING_DIR/budgets-executed-2019-transformed.json 2019
 
 # Transform > Transform planned updated data files
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned-updated/run.rb $WORKING_DIR/pressupost_2017_utf8_clean.csv $WORKING_DIR/budgets-planned-updated-2017-transformed.json 2017
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned-updated/run.rb $WORKING_DIR/pressupost_2018_utf8_clean.csv $WORKING_DIR/budgets-planned-updated-2018-transformed.json 2018
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned-updated/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv $WORKING_DIR/budgets-planned-updated-2019-transformed.json 2019
 
 # Load > Import planned budgets
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets/run.rb $WORKING_DIR/budgets-planned-2017-transformed.json 2017
@@ -50,14 +52,17 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned
 # Load > Import executed budgets
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-executed-budgets/run.rb $WORKING_DIR/budgets-executed-2017-transformed.json 2017
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-executed-budgets/run.rb $WORKING_DIR/budgets-executed-2018-transformed.json 2018
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-executed-budgets/run.rb $WORKING_DIR/budgets-executed-2018-transformed.json 2019
 
 # Load > Import planned updated budgets
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2017-transformed.json 2017
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2018-transformed.json 2018
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2018-transformed.json 2019
 
 # Load > Import custom categories
 cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv mataro.gobierto.test
 cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2018_utf8_clean.csv mataro.gobierto.test
+cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv mataro.gobierto.test
 
 # Load > Calculate totals
 echo $MATARO_INE_CODE > $WORKING_DIR/organization.id.txt
