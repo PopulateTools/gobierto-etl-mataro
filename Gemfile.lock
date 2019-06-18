@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/PopulateTools/gobierto_data.git
-  revision: 3527311f1742dd8e7202328bde261bcedb276e95
+  revision: f528340091ac49c8fa4b9ae2d320d72452c6edaf
   specs:
     gobierto_data (0.1.0)
       actionpack (>= 5.0.0.1)
@@ -35,28 +35,28 @@ GEM
       tzinfo (~> 1.1)
     ansi (1.5.0)
     aws-eventstream (1.0.3)
-    aws-sdk (2.11.278)
-      aws-sdk-resources (= 2.11.278)
-    aws-sdk-core (2.11.278)
+    aws-sdk (2.11.296)
+      aws-sdk-resources (= 2.11.296)
+    aws-sdk-core (2.11.296)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.11.278)
-      aws-sdk-core (= 2.11.278)
+    aws-sdk-resources (2.11.296)
+      aws-sdk-core (= 2.11.296)
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
     builder (3.2.3)
     byebug (11.0.1)
     concurrent-ruby (1.1.5)
     crass (1.0.4)
-    elasticsearch (6.3.1)
-      elasticsearch-api (= 6.3.1)
-      elasticsearch-transport (= 6.3.1)
-    elasticsearch-api (6.3.1)
+    elasticsearch (6.8.0)
+      elasticsearch-api (= 6.8.0)
+      elasticsearch-transport (= 6.8.0)
+    elasticsearch-api (6.8.0)
       multi_json
     elasticsearch-extensions (0.0.31)
       ansi
       elasticsearch
-    elasticsearch-transport (6.3.1)
+    elasticsearch-transport (6.8.0)
       faraday
       multi_json
     erubi (1.8.0)
