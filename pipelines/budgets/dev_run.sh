@@ -52,12 +52,12 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned
 # Load > Import executed budgets
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-executed-budgets/run.rb $WORKING_DIR/budgets-executed-2017-transformed.json 2017
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-executed-budgets/run.rb $WORKING_DIR/budgets-executed-2018-transformed.json 2018
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-executed-budgets/run.rb $WORKING_DIR/budgets-executed-2018-transformed.json 2019
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-executed-budgets/run.rb $WORKING_DIR/budgets-executed-2019-transformed.json 2019
 
 # Load > Import planned updated budgets
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2017-transformed.json 2017
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2018-transformed.json 2018
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2018-transformed.json 2019
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2019-transformed.json 2019
 
 # Load > Import custom categories
 cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv mataro.gobierto.test
