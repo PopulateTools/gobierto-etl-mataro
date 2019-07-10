@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/PopulateTools/gobierto_data.git
-  revision: f528340091ac49c8fa4b9ae2d320d72452c6edaf
+  revision: 3ae03df6f1a268d9ea0e24e290100df719995ad2
   specs:
     gobierto_data (0.1.0)
       actionpack (>= 5.0.0.1)
@@ -35,13 +35,13 @@ GEM
       tzinfo (~> 1.1)
     ansi (1.5.0)
     aws-eventstream (1.0.3)
-    aws-sdk (2.11.296)
-      aws-sdk-resources (= 2.11.296)
-    aws-sdk-core (2.11.296)
+    aws-sdk (2.11.311)
+      aws-sdk-resources (= 2.11.311)
+    aws-sdk-core (2.11.311)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.11.296)
-      aws-sdk-core (= 2.11.296)
+    aws-sdk-resources (2.11.311)
+      aws-sdk-core (= 2.11.311)
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
     builder (3.2.3)
