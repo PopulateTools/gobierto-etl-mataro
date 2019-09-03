@@ -33,6 +33,7 @@ content.gsub!(/"Festa al Cel"/, 'Festa al Cel')
 content.gsub!(/"Suport al servei menjador EB"/, 'Suport al servei menjador EB')
 content.gsub!(/"Promoció de la ciutat"/, 'Promoció de la ciutat')
 content.gsub!(/"La promoció de la ciutat i el comerç"/, 'La promoció de la ciutat i el comerç')
+content.gsub!(/"Yes, we rent"/, 'Yes, we rent')
 File.open(output_file, 'wb+').write(content)
 
 puts "[END] clean-quotes/run.rb"
