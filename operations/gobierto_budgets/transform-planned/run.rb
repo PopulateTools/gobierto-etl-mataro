@@ -139,6 +139,9 @@ end
       type: type
     })
   end
+rescue TypeError => e
+  puts "\n[ERROR] Can't find population data. Is it loaded in ElasticSearch #{ENV['ELASTICSEARCH_URL']}?\n" if population.nil?
+  raise e
 end
 
 ## Economic categories inside custom categories
