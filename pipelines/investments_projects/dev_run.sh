@@ -19,7 +19,7 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "$API_HOST/gobi
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "$API_HOST/gobierto_investments/api/v1/projects/new" $WORKING_DIR/new.json
 
 # Extract > Extract external ids of projects
-cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/extract-projects-external-ids/run.rb $WORKING_DIR/llistaobres.json $WORKING_DIR/external_ids.txt
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb $WORKING_DIR/llistaobres.json $WORKING_DIR/external_ids.txt $WORKING_DIR/projects_extra_data.json
 
 # Extract > Download data sources - Individual projects
 for i in $(cat $WORKING_DIR/external_ids.txt) ; do

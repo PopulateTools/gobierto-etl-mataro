@@ -31,7 +31,7 @@ pipeline {
         }
         stage('Extract > Extract external ids of projects') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/extract-projects-external-ids/run.rb ${WORKING_DIR}/llistaobres.json ${WORKING_DIR}/external_ids.txt"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb ${WORKING_DIR}/llistaobres.json ${WORKING_DIR}/external_ids.txt ${WORKING_DIR}/projects_extra_data.json"
             }
         }
         stage('Extract > Download data sources - API resources') {
