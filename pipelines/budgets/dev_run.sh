@@ -15,9 +15,9 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesob
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/pressupost_2019.csv" $WORKING_DIR/pressupost_2019.csv
 
 # Extract > Convert data to UTF8
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING_DIR/pressupost_2017.csv $WORKING_DIR/pressupost_2017_utf8.csv
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING_DIR/pressupost_2018.csv $WORKING_DIR/pressupost_2018_utf8.csv
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING_DIR/pressupost_2019.csv $WORKING_DIR/pressupost_2019_utf8.csv
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING_DIR/pressupost_2017.csv $WORKING_DIR/pressupost_2017_utf8.csv ISO-8859-1
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING_DIR/pressupost_2018.csv $WORKING_DIR/pressupost_2018_utf8.csv ISO-8859-1
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING_DIR/pressupost_2019.csv $WORKING_DIR/pressupost_2019_utf8.csv ISO-8859-1
 
 # Extract > Clean wrong quotes
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/clean-quotes/run.rb $WORKING_DIR/pressupost_2017_utf8.csv $WORKING_DIR/pressupost_2017_utf8_clean.csv
