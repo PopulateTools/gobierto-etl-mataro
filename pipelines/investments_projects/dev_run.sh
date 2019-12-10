@@ -27,7 +27,7 @@ for i in $(cat $WORKING_DIR/external_ids.txt) ; do
 done
 
 # Transform > Transform data
-cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/transform-projects/run.rb $WORKING_DIR/external_ids.txt $WORKING_DIR/meta.json $WORKING_DIR/new.json $WORKING_DIR/downloaded_projects/ $WORKING_DIR/transformed_projects/ $API_HOST $ATTACHMENTS_COLLECTION_ID
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/transform-projects/run.rb $WORKING_DIR/external_ids.txt $WORKING_DIR/meta.json $WORKING_DIR/projects_extra_data.json $WORKING_DIR/new.json $WORKING_DIR/downloaded_projects/ $WORKING_DIR/transformed_projects/ $API_HOST $ATTACHMENTS_COLLECTION_ID
 
 # Load > Send data to API
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/load-projects/run.rb $WORKING_DIR/external_ids.txt $WORKING_DIR/transformed_projects/ $API_HOST
