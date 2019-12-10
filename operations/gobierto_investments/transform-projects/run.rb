@@ -42,7 +42,8 @@ api_host = ARGV[6]
 attachments_opts = {
   attachments_collection_id: ARGV[7],
   bearer_header: "Bearer #{ENV.fetch("API_TOKEN")}",
-  attachments_endpoint: "#{api_host}/admin/attachments/api/attachments"
+  attachments_endpoint: "#{api_host}/admin/attachments/api/attachments",
+  terms_endpoint: ->(vocabulary_id) {"#{api_host}/admin/api/vocabularies/#{vocabulary_id}/terms"}
 }
 
 if File.join(transformed_path, "/") != "./"
@@ -92,6 +93,9 @@ def vocabulary(key)
   meta(key).vocabulary_terms
 end
 
+def vocabulary_id(key)
+  meta(key).options.dig("vocabulary_id")
+end
 
 def process_attachments_of(content, opts = {})
   keys = opts.fetch(:keys, [])
@@ -114,6 +118,16 @@ def process_attachments_of(content, opts = {})
         raise StandardError, "File upload failed"
       end
     end
+  end
+end
+
+def create_term(vocabulary_id, opts)
+  resp = HTTP.auth(opts[:bearer_header]).post(opts[:terms_endpoint].call(vocabulary_id), :json => opts.slice(:term))
+  if resp.status.success?
+    body = JSON.parse(resp.body.to_s)
+    body["id"]
+  else
+    raise StandardError, "Term creation failed"
   end
 end
 
@@ -165,9 +179,12 @@ detailed_data.each do |k, v|
     value = if meta_data.field_type == "vocabulary_options"
               vocabulary = vocabulary(cf_k)
               if vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val }.blank?
-                raise StandardError, "Name #{val} is not present in vocabulary for #{cf_k} custom field"
+                new_term_id = create_term(vocabulary_id(cf_k), attachments_opts.merge(term: { name_translations: { ca: val } }))
+                puts "Name #{val} is not present in vocabulary for #{cf_k} custom field. New term created or get from the API"
+                new_term_id
+              else
+                (vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val } || {})["id"]
               end
-              (vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val } || {})["id"]
             elsif meta_data.field_type == "localized_string"
               { ca: val }
             elsif meta_data.field_type == "date"
