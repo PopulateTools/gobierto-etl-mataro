@@ -168,9 +168,12 @@ end
 
 @meta_data = JSON.parse(meta).with_indifferent_access
 
+new_keys = []
+
 detailed_data.each do |k, v|
   content = v["items"][0]["detallobre2"][0].merge(projects_extra_data[k.to_s])
 
+  new_keys = new_keys | (content.keys - @keys_translations.keys)
   new_hash = JSON.parse(new_json)
 
   @cf_keys.each do |cf_k|
@@ -204,6 +207,10 @@ detailed_data.each do |k, v|
 
   File.write(File.join(transformed_path, "#{k}.json"), new_hash.to_json)
   puts "\tCreated transformed file #{k}.json"
+end
+
+if new_keys.present?
+  puts "There are new unrecognized_keys: #{new_keys.map(&:inspect).join(", ")}"
 end
 
 puts "[END] transform-projects/run.rb"
