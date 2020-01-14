@@ -48,10 +48,19 @@ base_data = {
 
 output_data = []
 
+def parse_amount(row)
+  amount_string = nil
+  %w(IMPASSIG_V4 IMPASSIG_V3 IMPASSIG_V2 IMPASSIG_V1).each do |column_key|
+    amount_string = row[column_key]
+    break if amount_string.present?
+  end
+
+  amount_string.present? ? amount_string.tr(",", ".").to_f : nil
+end
+
 def parse_cell(row, year, name)
-  return if row['ANYACUM'].to_i != year
-  return if row['IMPORTPARDEFIN'].blank?
-  return if !['Presupuesto Actual'].include?(row['DESACUM'].strip)
+  return if row["PARANYPRS"].to_i != year
+  return if parse_amount(row).nil?
 
   if row['TIPPARTIDA'].strip == 'Despeses'
     kind = GobiertoData::GobiertoBudgets::EXPENSE
@@ -78,7 +87,7 @@ def parse_cell(row, year, name)
   end
 
   @categories[kind][category_code] ||= 0
-  @categories[kind][category_code] += row['IMPORTPARDEFIN'].tr(',', '.').to_f
+  @categories[kind][category_code] += parse_amount(row)
   @categories[kind][category_code] = @categories[kind][category_code].round(2)
 end
 

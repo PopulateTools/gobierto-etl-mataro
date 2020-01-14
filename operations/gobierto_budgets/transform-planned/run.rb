@@ -48,9 +48,11 @@ base_data = {
 
 output_data = []
 
+CSV_AMOUNT_ROW = "IMPASSIG_V1".freeze
+
 def parse_cell(row, year, name)
   return if row['PARANYPRS'].to_i != year
-  return if row['IMPASSIG'].blank?
+  return if row[CSV_AMOUNT_ROW].blank?
   return if row[name].blank?
   category_name = row[name].strip
 
@@ -77,7 +79,7 @@ def parse_cell(row, year, name)
   end
 
   @categories[kind][category_code] ||= 0
-  @categories[kind][category_code] += row['IMPASSIG'].tr(',', '.').to_f
+  @categories[kind][category_code] += row[CSV_AMOUNT_ROW].tr(',', '.').to_f
   @categories[kind][category_code] = @categories[kind][category_code].round(2)
 
   # Extract economic information from PARCAPITOL
@@ -86,7 +88,7 @@ def parse_cell(row, year, name)
     economic_category_code = $1.strip
     @economic_categories[kind][category_code] ||= {}
     @economic_categories[kind][category_code][economic_category_code] ||= 0
-    @economic_categories[kind][category_code][economic_category_code] += row['IMPASSIG'].tr(',', '.').to_f
+    @economic_categories[kind][category_code][economic_category_code] += row[CSV_AMOUNT_ROW].tr(',', '.').to_f
   end
 end
 
