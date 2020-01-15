@@ -35,7 +35,7 @@ year = ARGV[2].to_i
 puts "[START] transform-planned/run.rb with file=#{input_file} output=#{output_file} year=#{year}"
 
 place = INE::Places::Place.find_by_slug('mataro')
-population = GobiertoData::GobiertoBudgets::Population.get(place.id, year)
+population = GobiertoData::GobiertoBudgets::Population.get(place.id, year) || GobiertoData::GobiertoBudgets::Population.get(place.id, year - 1)
 
 base_data = {
   organization_id: place.id,
@@ -49,7 +49,7 @@ base_data = {
 output_data = []
 
 def parse_cell(row, year, name)
-  return if row['PARANYPRS'].to_i != year
+  #return if row['PARANYPRS'].to_i != year
   return if row['IMPASSIG'].blank?
   return if row[name].blank?
   category_name = row[name].strip
