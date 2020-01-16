@@ -9,10 +9,11 @@ MATARO_INE_CODE=8121
 rm -rf $WORKING_DIR
 mkdir $WORKING_DIR
 
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb /Users/amiedes/Desktop/mataro_id.txt 2018
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb /Users/amiedes/Desktop/mataro_id.txt 2019
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb /Users/amiedes/Desktop/mataro_id.txt 2020
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb /Users/amiedes/Desktop/mataro_id.txt 2021
+echo $MATARO_INE_CODE > $WORKING_DIR/mataro_id.txt
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2018
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2019
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2020
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2021
 
 # Extract > Download data sources
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/pressupost_2018.csv" $WORKING_DIR/pressupost_2018.csv
