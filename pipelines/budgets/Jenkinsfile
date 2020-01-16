@@ -74,6 +74,7 @@ pipeline {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb ${WORKING_DIR}/pressupost_2018_utf8_clean.csv ${WORKING_DIR}/budgets-executed-2018-transformed.json 2018"
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb ${WORKING_DIR}/pressupost_2019_utf8_clean.csv ${WORKING_DIR}/budgets-executed-2019-transformed.json 2019"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb ${WORKING_DIR}/pressupost_2020_utf8_clean.csv ${WORKING_DIR}/budgets-executed-2020-transformed.json 2020"
             }
         }
         stage('Transform > Transform planned updated budgets data files') {
@@ -94,6 +95,7 @@ pipeline {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2018-transformed.json 2018"
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2019-transformed.json 2019"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2020-transformed.json 2020"
             }
         }
         stage('Load > Import planned updated budgets') {
