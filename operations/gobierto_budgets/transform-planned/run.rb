@@ -35,7 +35,7 @@ year = ARGV[2].to_i
 puts "[START] transform-planned/run.rb with file=#{input_file} output=#{output_file} year=#{year}"
 
 place = INE::Places::Place.find_by_slug('mataro')
-population = GobiertoData::GobiertoBudgets::Population.get(place.id, year)
+population = GobiertoData::GobiertoBudgets::Population.get(place.id, year) || GobiertoData::GobiertoBudgets::Population.get(place.id, year - 1)
 
 base_data = {
   organization_id: place.id,
@@ -48,10 +48,17 @@ base_data = {
 
 output_data = []
 
+def parse_amount(row, year)
+  cell_value = (year == 2020) ? row["IMPASSIG_V2"] : row["IMPASSIG_V1"]
+
+  cell_value.tr(",", ".").to_f
+end
+
 def parse_cell(row, year, name)
-  return if row['PARANYPRS'].to_i != year
-  return if row['IMPASSIG'].blank?
+  return if year == 2020 && row["IMPASSIG_V2"].blank?
+  return if year != 2020 && row["IMPASSIG_V1"].blank?
   return if row[name].blank?
+
   category_name = row[name].strip
 
   if row['TIPPARTIDA'].strip == 'Despeses'
@@ -77,7 +84,7 @@ def parse_cell(row, year, name)
   end
 
   @categories[kind][category_code] ||= 0
-  @categories[kind][category_code] += row['IMPASSIG'].tr(',', '.').to_f
+  @categories[kind][category_code] += parse_amount(row, year)
   @categories[kind][category_code] = @categories[kind][category_code].round(2)
 
   # Extract economic information from PARCAPITOL
@@ -86,7 +93,7 @@ def parse_cell(row, year, name)
     economic_category_code = $1.strip
     @economic_categories[kind][category_code] ||= {}
     @economic_categories[kind][category_code][economic_category_code] ||= 0
-    @economic_categories[kind][category_code][economic_category_code] += row['IMPASSIG'].tr(',', '.').to_f
+    @economic_categories[kind][category_code][economic_category_code] += parse_amount(row, year)
   end
 end
 
