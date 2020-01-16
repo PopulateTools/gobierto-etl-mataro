@@ -55,14 +55,10 @@ def parse_amount(row, year)
 end
 
 def parse_cell(row, year, name)
-  #return if row['PARANYPRS'].to_i != year
-
   return if year == 2020 && row["IMPASSIG_V2"].blank?
   return if year != 2020 && row["IMPASSIG_V1"].blank?
-
-  #return if row['IMPASSIG'].blank?
-
   return if row[name].blank?
+
   category_name = row[name].strip
 
   if row['TIPPARTIDA'].strip == 'Despeses'
