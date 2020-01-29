@@ -49,15 +49,22 @@ base_data = {
 output_data = []
 
 def parse_amount(row, year)
-  cell_value = (year == 2020) ? row["IMPASSIG_V2"] : row["IMPASSIG_V1"]
+  cell_value = if year < 2020
+                 row["IMPASSIG_V1"]
+               elsif year == 2020
+                 row["IMPASSIG_V2"]
+               elsif year == 2021
+                 row["IMPASSIG_V3"]
+               end
 
   cell_value.tr(",", ".").to_f
 end
 
 def parse_cell(row, year, name)
-  return if year == 2020 && row["IMPASSIG_V2"].blank?
-  return if year != 2020 && row["IMPASSIG_V1"].blank?
-  return if row[name].blank?
+  return if (year < 2020 && row["IMPASSIG_V1"].blank?) ||
+            (year == 2020 && row["IMPASSIG_V2"].blank?) ||
+            (year == 2021 && row["IMPASSIG_V3"].blank?) ||
+            row[name].blank?
 
   category_name = row[name].strip
 
