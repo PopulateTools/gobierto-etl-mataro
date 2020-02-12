@@ -9,7 +9,7 @@ pipeline {
         MATARO_ID="8121"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
-        // API_HOST = "http://mataro.gobify.net"
+        // API_HOST = "https://mataro.gobify.net"
         // ATTACHMENTS_COLLECTION_ID = "2026"
     }
     stages {
@@ -36,7 +36,7 @@ pipeline {
         }
         stage('Extract > Download data sources - Individual projects') {
             steps {
-                sh "for i in $(cat ${WORKING_DIR}/external_ids.txt) ; do cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb "https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobre2/$i" ${WORKING_DIR}/downloaded_projects/$i.json; done"
+                sh "for i in \$(cat ${WORKING_DIR}/external_ids.txt) ; do cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb \"https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobre2/\$i\" ${WORKING_DIR}/downloaded_projects/\$i.json; done"
             }
         }
         stage('Transform > Transform data') {
