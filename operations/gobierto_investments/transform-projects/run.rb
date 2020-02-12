@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 
-require "http"
 require "bundler/setup"
 Bundler.require
+
+require "http"
 
 # Usage:
 #
