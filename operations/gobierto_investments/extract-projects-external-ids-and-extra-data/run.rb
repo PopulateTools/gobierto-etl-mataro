@@ -36,7 +36,7 @@ ids = parsed_data.map { |item| item["id"] }
 
 data = parsed_data.inject({}) do |hsh, item|
   hsh.update(
-    item["id"] => item.slice("element", "import", "tipus", "nom_servei_gestor")
+    item["id"] => item.slice("element", "import", "tipus", "tipus_projecte", "nom_servei_gestor")
   )
 end
 
