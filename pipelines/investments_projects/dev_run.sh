@@ -2,7 +2,7 @@
 source "/Users/edu/.rvm/scripts/rvm"
 set -e
 
-WORKING_DIR=/tmp/mataro
+WORKING_DIR=/tmp/mataro_investments
 MATARO_INE_CODE=8121
 API_HOST=http://mataro.gobierto.test
 ATTACHMENTS_COLLECTION_ID=2026
