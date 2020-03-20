@@ -68,6 +68,7 @@ pipeline {
         stage('Transform > Transform planned updated budgets data files') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2019_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2019-transformed.json 2019"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2020_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2020-transformed.json 2020"
             }
         }
         stage('Load > Import planned budgets') {
@@ -85,6 +86,7 @@ pipeline {
         stage('Load > Import planned updated budgets') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2019-transformed.json 2019"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2020-transformed.json 2020"
             }
         }
         stage('Load > Import custom categories') {
