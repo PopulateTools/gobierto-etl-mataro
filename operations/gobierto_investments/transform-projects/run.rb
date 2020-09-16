@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 
-require "http"
 require "bundler/setup"
 Bundler.require
+
+require "http"
 
 # Usage:
 #
@@ -15,29 +16,36 @@ Bundler.require
 #       in the name
 #  - 1: Json file returned by the gobierto API for the meta action, containing
 #       information about fields
-#  - 2: Json file returned by the gobierto API for a new project
-#  - 3: Path of data for each project
-#  - 4: Destination path of transformed data
-#  - 5: API host
-#  - 6: Id of the collection to which the files to be attached will belong
+#  - 2: Json file containing extra data of projects obtained from other source
+#       which has to be loaded
+#  - 3: Json file returned by the gobierto API for a new project
+#  - 4: Path of data for each project
+#  - 5: Destination path of transformed data
+#  - 6: API host
+#  - 7: Id of the collection to which the files to be attached will belong
 # Samples:
 #
-#   /path/to/project/operations/gobierto_budgets/transform-projects/run.rb external_ids_file.txt meta_file.json new_file.json data_path transformed_path http://mataro.gobierto.test 2026
+#   /path/to/project/operations/gobierto_budgets/transform-projects/run.rb external_ids_file.txt meta_file.json projects_extra_data.json new_file.json data_path transformed_path http://mataro.gobierto.test 2026
 #
 
-if ARGV.length != 7
+if ARGV.length != 8
   raise "Review the arguments"
 end
 
 external_ids_file = ARGV[0]
 meta_file = ARGV[1]
-new_file = ARGV[2]
-data_path = ARGV[3]
-transformed_path = ARGV[4]
-api_host = ARGV[5]
-attachments_collection_id = ARGV[6]
-bearer_header = "Bearer #{ENV.fetch("API_TOKEN")}"
-attachments_endpoint = "#{api_host}/admin/attachments/api/attachments"
+projects_extra_data_file = ARGV[2]
+new_file = ARGV[3]
+data_path = ARGV[4]
+transformed_path = ARGV[5]
+api_host = ARGV[6]
+
+attachments_opts = {
+  attachments_collection_id: ARGV[7],
+  bearer_header: "Bearer #{ENV.fetch("API_TOKEN")}",
+  attachments_endpoint: "#{api_host}/admin/attachments/api/attachments",
+  terms_endpoint: ->(vocabulary_id) {"#{api_host}/admin/api/vocabularies/#{vocabulary_id}/terms"}
+}
 
 if File.join(transformed_path, "/") != "./"
   FileUtils.mkdir_p(File.join(transformed_path, "/"))
@@ -46,6 +54,7 @@ end
 external_ids = File.open(external_ids_file).read.split(" ")
 meta = File.open(meta_file).read
 new_json = File.open(new_file).read
+projects_extra_data = JSON.parse(File.open(projects_extra_data_file).read)
 
 puts "[START] transform-projects/run.rb with #{external_ids.count} file(s)"
 
@@ -85,27 +94,45 @@ def vocabulary(key)
   meta(key).vocabulary_terms
 end
 
-@cf_keys = [
-  "estat",
-  "descripcio-projecte",
-  "data-inici",
-  "nom-servei-responsable",
-  "tipus-projecte",
-  "nom-projecte",
-  "notes",
-  "data-adjudicacio",
-  "import-liquidacio",
-  "wkt",
-  "tasques",
-  "data-final",
-  "data-inici-redaccio",
-  "adjudicatari",
-  "adreca",
-  "import",
-  "import-adjudicacio",
-  "data-fi-redaccio"
-]
+def vocabulary_id(key)
+  meta(key).options.dig("vocabulary_id")
+end
 
+def process_attachments_of(content, opts = {})
+  keys = opts.fetch(:keys, [])
+  with_metadata = opts.fetch(:with_metadata, false)
+
+  processed_files = []
+
+  keys.inject([]) do |processed_files, attachment_key|
+    raw_files = content[attachment_key]
+
+    next processed_files if raw_files.blank?
+
+    processed_files + raw_files.map do |raw_file_data|
+      resp = HTTP.auth(opts[:bearer_header]).post(opts[:attachments_endpoint], :json => attachment_body(raw_file_data, opts[:attachments_collection_id]))
+      if resp.status.success?
+        body = JSON.parse(resp.body.to_s)
+        raise StandardError, "File uploaded, but no attachment url has been returned" if (url =  body.dig("attachment", "url")).blank?
+        with_metadata ? body.dig("attachment").slice("file_name", "url", "human_readable_url", "file_size").merge(raw_file_data.slice("nom")) : url
+      else
+        raise StandardError, "File upload failed"
+      end
+    end
+  end
+end
+
+def create_term(vocabulary_id, opts)
+  resp = HTTP.auth(opts[:bearer_header]).post(opts[:terms_endpoint].call(vocabulary_id), :json => opts.slice(:term))
+  if resp.status.success?
+    body = JSON.parse(resp.body.to_s)
+    body["id"]
+  else
+    raise StandardError, "Term creation failed"
+  end
+end
+
+@cf_keys = JSON.parse(meta)["data"].map{|e| e["attributes"]["uid"]} - ["gallery", "documents", "budget"]
 @keys_translations = {
   "id" => "external_id",
   "descripcio_projecte" => "descripcio-projecte",
@@ -130,14 +157,24 @@ end
   "adreca" => "adreca",
   "notes" => "notes",
   "documents" => "documents",
-  "imagenes" => "imagenes-i-documents"
+  "imagenes" => "imagenes-i-documents",
+  "partida" => "partida",
+  "any_partida" => "any-partida",
+  "element" => "element",
+  "nom_servei_gestor" => "nom-servei-gestor",
+  "tipus" => "tipus",
+  "import" => "import-main",
+  "financament" => "financament"
 }
 
 @meta_data = JSON.parse(meta).with_indifferent_access
 
-detailed_data.each do |k, v|
-  content = v["items"][0]["detallobre2"][0]
+new_keys = []
 
+detailed_data.each do |k, v|
+  content = v["items"][0]["detallobre2"][0].merge(projects_extra_data[k.to_s])
+
+  new_keys = new_keys | (content.keys - @keys_translations.keys)
   new_hash = JSON.parse(new_json)
 
   @cf_keys.each do |cf_k|
@@ -146,9 +183,12 @@ detailed_data.each do |k, v|
     value = if meta_data.field_type == "vocabulary_options"
               vocabulary = vocabulary(cf_k)
               if vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val }.blank?
-                raise StandardError, "Name #{val} is not present in vocabulary for #{cf_k} custom field"
+                new_term_id = create_term(vocabulary_id(cf_k), attachments_opts.merge(term: { name_translations: { ca: val } }))
+                puts "Name #{val} is not present in vocabulary for #{cf_k} custom field. New term created or get from the API"
+                new_term_id
+              else
+                (vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val } || {})["id"]
               end
-              (vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val } || {})["id"]
             elsif meta_data.field_type == "localized_string"
               { ca: val }
             elsif meta_data.field_type == "date"
@@ -162,32 +202,16 @@ detailed_data.each do |k, v|
     end
   end
 
-  # Images
-  images = []
-  processed_images = []
-  ["imagen_principal", "imagenes_i_documents", "imagenes"].each do |image_key|
-    raw_images = content[image_key]
-    processed_images = []
-    if raw_images.present?
-      raw_images.each do |raw_image_data|
-        resp = HTTP.auth(bearer_header).post(attachments_endpoint, :json => attachment_body(raw_image_data, attachments_collection_id))
-        if resp.status.success?
-          body = JSON.parse(resp.body.to_s)
-          processed_images << body.dig("attachment", "url")
-          raise StandardError, "File uploaded, but no attachment url has been returned" if body.dig("attachment", "url").blank?
-        else
-          raise StandardError, "File upload failed"
-        end
-      end
-    end
-    images.concat processed_images
-  end
-
   new_hash["data"]["attributes"]["external_id"] = k
-  new_hash["data"]["attributes"]["gallery"] = images
+  new_hash["data"]["attributes"]["gallery"] = process_attachments_of(content, attachments_opts.merge(keys: ["imagen_principal", "imagenes_i_documents", "imagenes"]))
+  new_hash["data"]["attributes"]["documents"] = process_attachments_of(content, attachments_opts.merge(keys: ["documents"], with_metadata: true))
 
   File.write(File.join(transformed_path, "#{k}.json"), new_hash.to_json)
   puts "\tCreated transformed file #{k}.json"
+end
+
+if new_keys.present?
+  puts "There are new unrecognized_keys: #{new_keys.map(&:inspect).join(", ")}"
 end
 
 puts "[END] transform-projects/run.rb"
