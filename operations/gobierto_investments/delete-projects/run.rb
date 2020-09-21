@@ -35,7 +35,7 @@ external_ids = File.open(external_ids_file).read.split(" ")
 
 puts "[START] delete-projects/run.rb with #{external_ids.count} file(s)"
 
-existing_projects = JSON.parse(HTTP.get(projects_endpoint)).fetch("data", [])
+existing_projects = JSON.parse(HTTP.auth(bearer_header).get(projects_endpoint)).fetch("data", [])
 
 missing_existing_projects = existing_projects.inject({}) do |projects, project|
   next projects if external_ids.include?(project.dig("attributes", "external_id"))

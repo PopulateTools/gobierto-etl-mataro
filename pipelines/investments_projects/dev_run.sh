@@ -12,18 +12,18 @@ rm -rf $WORKING_DIR
 mkdir $WORKING_DIR
 
 # Extract > Download data sources - Projects index
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobres2" $WORKING_DIR/llistaobres.json
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobres2" --output-file $WORKING_DIR/llistaobres.json
 
 # Extract > Download data sources - API resources
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "$API_HOST/gobierto_investments/api/v1/projects/meta" $WORKING_DIR/meta.json
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "$API_HOST/gobierto_investments/api/v1/projects/new" $WORKING_DIR/new.json
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "$API_HOST/gobierto_investments/api/v1/projects/meta" --output-file $WORKING_DIR/meta.json --bearer-token $API_TOKEN
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "$API_HOST/gobierto_investments/api/v1/projects/new" --output-file $WORKING_DIR/new.json --bearer-token $API_TOKEN
 
 # Extract > Extract external ids of projects
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb $WORKING_DIR/llistaobres.json $WORKING_DIR/external_ids.txt $WORKING_DIR/projects_extra_data.json
 
 # Extract > Download data sources - Individual projects
 for i in $(cat $WORKING_DIR/external_ids.txt) ; do
-  cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobre2/$i" $WORKING_DIR/downloaded_projects/$i.json
+  cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobre2/$i" --output-file $WORKING_DIR/downloaded_projects/$i.json
 done
 
 # Transform > Transform data
