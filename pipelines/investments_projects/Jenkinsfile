@@ -28,8 +28,8 @@ pipeline {
               sh '''#!/bin/bash
                 source ${MATARO_ETL}/.rbenv-vars;
                 cd ${GOBIERTO_ETL_UTILS};
-                ruby operations/api-download/run.rb --source-url '${API_HOST}/gobierto_investments/api/v1/projects/meta' --output-file ${WORKING_DIR}/meta.json --bearer-token $API_TOKEN;
-                ruby operations/api-download/run.rb --source-url '${API_HOST}/gobierto_investments/api/v1/projects/new' --output-file ${WORKING_DIR}/new.json --bearer-token $API_TOKEN
+                ruby operations/api-download/run.rb --source-url ${API_HOST}/gobierto_investments/api/v1/projects/meta --output-file ${WORKING_DIR}/meta.json --bearer-token $API_TOKEN;
+                ruby operations/api-download/run.rb --source-url ${API_HOST}/gobierto_investments/api/v1/projects/new --output-file ${WORKING_DIR}/new.json --bearer-token $API_TOKEN
               '''
             }
         }
