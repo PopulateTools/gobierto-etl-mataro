@@ -5,7 +5,7 @@ pipeline {
         PATH = "$HOME/.rbenv/shims:$PATH"
         GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
-        WORKING_DIR = "/tmp/mataro"
+        WORKING_DIR = "/tmp/mataro_budgets"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
         // DOMAIN = "pressupost.mataro.cat"
