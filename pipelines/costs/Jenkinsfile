@@ -5,7 +5,7 @@ pipeline {
         PATH = "$HOME/.rbenv/shims:$PATH"
         GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
-        WORKING_DIR = "/tmp/mataro"
+        WORKING_DIR = "/tmp/mataro_costs"
         DATASET_NAME = "Costes"
         DATASET_SLUG = "costes"
         DATASET_TABLE_NAME = "costes"
