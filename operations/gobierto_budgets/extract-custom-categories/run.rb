@@ -57,8 +57,6 @@ FIRST_LEVEL_CUSTOM_CATEGORIES.each do |category_name, category_code|
 end
 
 CSV.read(input_file, headers: true).each do |row|
-  next if row['IMPASSIG'].blank?
-
   if row['TIPPARTIDA'].strip == 'Despeses'
     kind = GobiertoData::GobiertoBudgets::EXPENSE
   elsif row['TIPPARTIDA'].strip == 'Ingressos'
