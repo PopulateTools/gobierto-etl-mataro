@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Requieres one argument witht he domain of the site, i.e madrid.gobierto.test
+
 set -e
 
 WORKING_DIR=/tmp/mataro
@@ -55,8 +57,8 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb $WORKING_DIR/budgets-planned-updated-2020-transformed.json 2020
 
 # Load > Import custom categories
-cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv mataro.gobierto.test
-cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2020_utf8_clean.csv mataro.gobierto.test
+cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv $1
+cd $DEV_DIR/gobierto; bin/rails runner $DEV_DIR/gobierto-etl-mataro/operations/gobierto_budgets/extract-custom-categories/run.rb $WORKING_DIR/pressupost_2020_utf8_clean.csv $1
 
 # Load > Calculate totals
 echo $MATARO_INE_CODE > $WORKING_DIR/organization.id.txt
