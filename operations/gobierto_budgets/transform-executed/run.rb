@@ -48,7 +48,7 @@ base_data = {
 
 output_data = []
 
-def parse_cell(row, year, name)
+def parse_cell(row, year, name, type)
   return if row['ANYACUM'].to_i != year
 
   if row['TIPPARTIDA'].strip == 'Despeses'
@@ -78,7 +78,11 @@ def parse_cell(row, year, name)
   end
 
   @categories[kind][category_code] ||= 0
-  @categories[kind][category_code] += row['IMPORTPARTOTAL'].tr(',', '.').to_f
+  if type == GobiertoData::GobiertoBudgets::CUSTOM_AREA_NAME
+    @categories[kind][category_code] += row['IMPORTPRJPARTOTAL'].tr(',', '.').to_f
+  else
+    @categories[kind][category_code] += row['IMPORTPARTOTAL'].tr(',', '.').to_f
+  end
   @categories[kind][category_code] = @categories[kind][category_code].round(2)
 end
 
@@ -90,10 +94,10 @@ type = GobiertoData::GobiertoBudgets::CUSTOM_AREA_NAME
 @categories = { GobiertoData::GobiertoBudgets::INCOME => {}, GobiertoData::GobiertoBudgets::EXPENSE => {} }
 
 CSV.read(input_file, headers: true).each do |row|
-  parse_cell(row, year, 'PROGRAMA')
-  parse_cell(row, year, 'SUBPROGRAMA')
-  parse_cell(row, year, 'PRJNOM')
-  parse_cell(row, year, 'PARCLSFUN_GRP')
+  parse_cell(row, year, 'PROGRAMA', type)
+  parse_cell(row, year, 'SUBPROGRAMA', type)
+  parse_cell(row, year, 'PRJNOM', type)
+  parse_cell(row, year, 'PARCLSFUN_GRP', type)
 end
 
 
@@ -142,10 +146,10 @@ type = GobiertoData::GobiertoBudgets::ECONOMIC_AREA_NAME
 @categories = { GobiertoData::GobiertoBudgets::INCOME => {}, GobiertoData::GobiertoBudgets::EXPENSE => {} }
 
 CSV.read(input_file, headers: true).each do |row|
-  parse_cell(row, year, 'PARCAPITOL')
-  parse_cell(row, year, 'PARCLSECO_2D')
-  parse_cell(row, year, 'PARCLSECO_3D')
-  parse_cell(row, year, 'PARCLSECO')
+  parse_cell(row, year, 'PARCAPITOL', type)
+  parse_cell(row, year, 'PARCLSECO_2D', type)
+  parse_cell(row, year, 'PARCLSECO_3D', type)
+  parse_cell(row, year, 'PARCLSECO', type)
 end
 
 @categories.keys.each do |kind|
@@ -183,9 +187,9 @@ type = GobiertoData::GobiertoBudgets::FUNCTIONAL_AREA_NAME
 
 
 CSV.read(input_file, headers: true).each do |row|
-  parse_cell(row, year, 'PARCLSFUN_1D')
-  parse_cell(row, year, 'PARCLSFUN_2D')
-  parse_cell(row, year, 'PARCLSFUN')
+  parse_cell(row, year, 'PARCLSFUN_1D', type)
+  parse_cell(row, year, 'PARCLSFUN_2D', type)
+  parse_cell(row, year, 'PARCLSFUN', type)
 end
 
 kind = GobiertoData::GobiertoBudgets::EXPENSE
