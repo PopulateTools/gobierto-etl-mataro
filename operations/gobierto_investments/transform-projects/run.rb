@@ -160,6 +160,7 @@ end
   "imagenes" => "imagenes-i-documents",
   "partida" => "partida",
   "any_partida" => "any-partida",
+  "any_estat" => "any-estat",
   "element" => "element",
   "nom_servei_gestor" => "nom-servei-gestor",
   "tipus" => "tipus",
