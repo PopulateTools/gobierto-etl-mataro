@@ -165,7 +165,8 @@ end
   "nom_servei_gestor" => "nom-servei-gestor",
   "tipus" => "tipus",
   "import" => "import-main",
-  "financament" => "financament"
+  "financament" => "financament",
+  "data_aprovacio" => "data-aprovacio"
 }
 
 @meta_data = JSON.parse(meta).with_indifferent_access
