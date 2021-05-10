@@ -132,7 +132,7 @@ def create_term(vocabulary_id, opts)
   end
 end
 
-@cf_keys = JSON.parse(meta)["data"].map{|e| e["attributes"]["uid"]} - ["gallery", "documents", "budget"]
+@cf_keys = JSON.parse(meta)["data"].map{|e| e["attributes"]["uid"]} - %w(gallery documents budget tipus-projecte-tipus-concatenation)
 @keys_translations = {
   "id" => "external_id",
   "descripcio_projecte" => "descripcio-projecte",
@@ -160,11 +160,13 @@ end
   "imagenes" => "imagenes-i-documents",
   "partida" => "partida",
   "any_partida" => "any-partida",
+  "any_estat" => "any-estat",
   "element" => "element",
   "nom_servei_gestor" => "nom-servei-gestor",
   "tipus" => "tipus",
   "import" => "import-main",
-  "financament" => "financament"
+  "financament" => "financament",
+  "data_aprovacio" => "data-aprovacio"
 }
 
 @meta_data = JSON.parse(meta).with_indifferent_access
@@ -205,6 +207,7 @@ detailed_data.each do |k, v|
   new_hash["data"]["attributes"]["external_id"] = k
   new_hash["data"]["attributes"]["gallery"] = process_attachments_of(content, attachments_opts.merge(keys: ["imagen_principal", "imagenes_i_documents", "imagenes"]))
   new_hash["data"]["attributes"]["documents"] = process_attachments_of(content, attachments_opts.merge(keys: ["documents"], with_metadata: true))
+  new_hash["data"]["attributes"]["tipus-projecte-tipus-concatenation"] = { ca:  %w(tipus-projecte tipus).map { |e| get_value(content, e)}.join(" - ") }
 
   File.write(File.join(transformed_path, "#{k}.json"), new_hash.to_json)
   puts "\tCreated transformed file #{k}.json"
