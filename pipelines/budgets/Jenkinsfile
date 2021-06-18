@@ -22,13 +22,6 @@ pipeline {
               sh "echo '8121' > ${WORKING_DIR}/organization.id.txt"
             }
         }
-        stage('Clear previous data') {
-            steps {
-              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2019"
-              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2020"
-              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2021"
-            }
-        }
         stage('Extract > Download data sources') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2019.csv' ${WORKING_DIR}/pressupost_2019.csv"
@@ -76,6 +69,13 @@ pipeline {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2019_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2019-transformed.json 2019"
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2020_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2020-transformed.json 2020"
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2021_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2021-transformed.json 2021"
+            }
+        }
+        stage('Load > Clear previous data') {
+            steps {
+              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2019"
+              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2020"
+              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2021"
             }
         }
         stage('Load > Import planned budgets') {
