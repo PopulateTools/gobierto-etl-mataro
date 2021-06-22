@@ -6,9 +6,6 @@ pipeline {
         GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
         WORKING_DIR = "/tmp/mataro_budgets"
-        naginator_retry_enabled = "true"
-        naginator_retry_after_seconds = "600"
-        naginator_retry_n_times = "3"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
         // DOMAIN = "pressupost.mataro.cat"
@@ -23,11 +20,6 @@ pipeline {
         stage('Create organization file') {
             steps {
               sh "echo '8121' > ${WORKING_DIR}/organization.id.txt"
-            }
-        }
-        stage('Always Fail') {
-            steps {
-              sh "exit 1"
             }
         }
         stage('Extract > Download data sources') {
