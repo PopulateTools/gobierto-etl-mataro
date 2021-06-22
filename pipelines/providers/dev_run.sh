@@ -30,4 +30,3 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-invoice
 # Load > Publish activity
 echo $MATARO_INE_CODE > $WORKING_DIR/organization.id.txt
 cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/publish-activity/run.rb providers_updated $WORKING_DIR/organization.id.txt
-

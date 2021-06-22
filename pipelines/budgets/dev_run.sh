@@ -12,9 +12,6 @@ rm -rf $WORKING_DIR
 mkdir $WORKING_DIR
 
 echo $MATARO_INE_CODE > $WORKING_DIR/mataro_id.txt
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2019
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2020
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2021
 
 # Extract > Download data sources
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/pressupost_2019.csv" $WORKING_DIR/pressupost_2019.csv
@@ -50,6 +47,11 @@ cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-exe
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned-updated/run.rb $WORKING_DIR/pressupost_2019_utf8_clean.csv $WORKING_DIR/budgets-planned-updated-2019-transformed.json 2019
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned-updated/run.rb $WORKING_DIR/pressupost_2020_utf8_clean.csv $WORKING_DIR/budgets-planned-updated-2020-transformed.json 2020
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned-updated/run.rb $WORKING_DIR/pressupost_2021_utf8_clean.csv $WORKING_DIR/budgets-planned-updated-2021-transformed.json 2021
+
+# Load > Clear existing budgets
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2019
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2020
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/clear-budgets/run.rb $WORKING_DIR/mataro_id.txt 2021
 
 # Load > Import planned budgets
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/gobierto_budgets/import-planned-budgets/run.rb $WORKING_DIR/budgets-planned-2019-transformed.json 2019
