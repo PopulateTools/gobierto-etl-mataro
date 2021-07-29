@@ -7,12 +7,11 @@ pipeline {
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
         WORKING_DIR="/tmp/mataro_providers"
         MATARO_ID = "8121"
-        RETRY = "3"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
     }
     options {
-        retry("${RETRY}")
+        retry(3)
     }
     stages {
         stage('Extract > Download data sources') {

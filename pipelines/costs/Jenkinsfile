@@ -9,12 +9,11 @@ pipeline {
         DATASET_NAME = "Costes"
         DATASET_SLUG = "costes"
         DATASET_TABLE_NAME = "costes"
-        RETRY = "3"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO_DATA_DEST_URL = ""
     }
     options {
-        retry("${RETRY}")
+        retry(3)
     }
     stages {
         stage('Clean working dir') {
