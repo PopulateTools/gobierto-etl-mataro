@@ -21,17 +21,17 @@ pipeline {
         }
         stage('Extract > Download data sources') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://dadesobertes.mataro.cat/costos_2019.csv' ${WORKING_DIR}/costos_2019.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://dadesobertes.mataro.cat/costos_2020.csv' ${WORKING_DIR}/costos_2020.csv"
             }
         }
         stage('Extract > Convert data to UTF8') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/costos_2019.csv ${WORKING_DIR}/costos_2019_utf8.csv ISO-8859-1"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/costos_2020.csv ${WORKING_DIR}/costos_2020_utf8.csv ISO-8859-1"
             }
         }
         stage('Extract > Check CSV format') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/costos_2019_utf8.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/costos_2020_utf8.csv"
             }
         }
         stage('Load > Upload to Gobierto data') {
@@ -45,7 +45,7 @@ pipeline {
                   --slug $DATASET_SLUG \
                   --table-name $DATASET_TABLE_NAME \
                   --gobierto-url $GOBIERTO_DATA_DEST_URL \
-                  --file-path ${WORKING_DIR}/costos_2019_utf8.csv
+                  --file-path ${WORKING_DIR}/costos_2020_utf8.csv
               '''
             }
         }
