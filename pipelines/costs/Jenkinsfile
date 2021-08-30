@@ -79,7 +79,7 @@ pipeline {
                   --table-name $DATASET_TABLE_NAME \
                   --gobierto-url $GOBIERTO_DATA_DEST_URL \
                   --file-path ${WORKING_DIR}/costos_2020_utf8.csv \
-                  --apend
+                  --append
               '''
             }
         }
