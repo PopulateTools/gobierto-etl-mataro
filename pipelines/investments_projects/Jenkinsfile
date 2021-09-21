@@ -6,11 +6,14 @@ pipeline {
         GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
         WORKING_DIR = "/tmp/mataro_investments"
-        MATARO_ID="8121"
+        MATARO_ID = "8121"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
         // API_HOST = "https://mataro.gobify.net"
         // ATTACHMENTS_COLLECTION_ID = "2026"
+    }
+    options {
+        retry(3)
     }
     stages {
         stage('Clean working dir') {

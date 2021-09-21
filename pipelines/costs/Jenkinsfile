@@ -12,6 +12,9 @@ pipeline {
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO_DATA_DEST_URL = ""
     }
+    options {
+        retry(3)
+    }
     stages {
         stage('Clean working dir') {
           steps {
