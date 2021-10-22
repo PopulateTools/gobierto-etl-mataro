@@ -51,16 +51,16 @@ def create_or_update_category!(name, code, kind)
 end
 
 FIRST_LEVEL_CUSTOM_CATEGORIES.each do |category_name, category_code|
-  GobiertoData::GobiertoBudgets::ALL_KINDS.each do |kind|
+  GobiertoBudgetsData::GobiertoBudgets::ALL_KINDS.each do |kind|
     create_or_update_category!(category_name, category_code, kind)
   end
 end
 
 CSV.read(input_file, headers: true).each do |row|
   if row['TIPPARTIDA'].strip == 'Despeses'
-    kind = GobiertoData::GobiertoBudgets::EXPENSE
+    kind = GobiertoBudgetsData::GobiertoBudgets::EXPENSE
   elsif row['TIPPARTIDA'].strip == 'Ingressos'
-    kind = GobiertoData::GobiertoBudgets::INCOME
+    kind = GobiertoBudgetsData::GobiertoBudgets::INCOME
   end
 
   level_2_category = row['PROGRAMA']

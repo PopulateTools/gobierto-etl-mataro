@@ -1,8 +1,8 @@
 GIT
-  remote: https://github.com/PopulateTools/gobierto_data.git
-  revision: f5c5b1b0846ded63e034edcda2edee425d9d72bd
+  remote: https://github.com/PopulateTools/gobierto_budgets_data.git
+  revision: 17761ea394fdb07418ee89a751482da4c6ebdaaf
   specs:
-    gobierto_data (0.1.0)
+    gobierto_budgets_data (0.1.0)
       actionpack
       activesupport
       aws-sdk-s3
@@ -117,7 +117,7 @@ GEM
     minitest (5.14.4)
     multi_json (1.15.0)
     multipart-post (2.1.1)
-    nokogiri (1.12.3)
+    nokogiri (1.12.5)
       mini_portile2 (~> 2.6.1)
       racc (~> 1.4)
     oj (3.13.2)
@@ -145,7 +145,7 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
-  gobierto_data!
+  gobierto_budgets_data!
   http
 
 BUNDLED WITH

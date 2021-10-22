@@ -35,7 +35,7 @@ year = ARGV[2].to_i
 puts "[START] transform-planned/run.rb with file=#{input_file} output=#{output_file} year=#{year}"
 
 place = INE::Places::Place.find_by_slug('mataro')
-population = GobiertoData::GobiertoBudgets::Population.get(place.id, year) || GobiertoData::GobiertoBudgets::Population.get(place.id, year - 1)
+population = GobiertoBudgetsData::GobiertoBudgets::Population.get(place.id, year) || GobiertoBudgetsData::GobiertoBudgets::Population.get(place.id, year - 1)
 
 base_data = {
   organization_id: place.id,
@@ -49,22 +49,29 @@ base_data = {
 output_data = []
 
 def parse_amount(row, year)
-  cell_value = (year == 2020) ? row["IMPASSIG_V4"] : row["IMPASSIG_V1"]
+  cell_value = if year == 2021
+                 row["IMPASSIG_V3"]
+               elsif year == 2020
+                 row["IMPASSIG_V4"]
+               else
+                 row["IMPASSIG_V1"]
+               end
 
   cell_value.tr(",", ".").to_f
 end
 
 def parse_cell(row, year, name)
-  return if year == 2020 && row["IMPASSIG_V4"].blank? || !row["CODIACUM"].blank?
+  return if year == 2021 && (row["IMPASSIG_V3"].blank? || !row["CODIACUM"].blank?)
+  return if year == 2020 && (row["IMPASSIG_V4"].blank? || !row["CODIACUM"].blank?)
   return if year != 2020 && row["IMPASSIG_V1"].blank?
   return if row[name].blank?
 
   category_name = row[name].strip
 
   if row['TIPPARTIDA'].strip == 'Despeses'
-    kind = GobiertoData::GobiertoBudgets::EXPENSE
+    kind = GobiertoBudgetsData::GobiertoBudgets::EXPENSE
   elsif row['TIPPARTIDA'].strip == 'Ingressos'
-    kind = GobiertoData::GobiertoBudgets::INCOME
+    kind = GobiertoBudgetsData::GobiertoBudgets::INCOME
   end
   re = /\A([I\d\-]+)\-(.+)\z/
   if category_name !~ re
@@ -99,11 +106,11 @@ end
 
 ## Custom
 
-type = GobiertoData::GobiertoBudgets::CUSTOM_AREA_NAME
+type = GobiertoBudgetsData::GobiertoBudgets::CUSTOM_AREA_NAME
 
 @parent_categories = {}
-@categories = { GobiertoData::GobiertoBudgets::INCOME => {}, GobiertoData::GobiertoBudgets::EXPENSE => {} }
-@economic_categories = { GobiertoData::GobiertoBudgets::INCOME => {}, GobiertoData::GobiertoBudgets::EXPENSE => {} }
+@categories = { GobiertoBudgetsData::GobiertoBudgets::INCOME => {}, GobiertoBudgetsData::GobiertoBudgets::EXPENSE => {} }
+@economic_categories = { GobiertoBudgetsData::GobiertoBudgets::INCOME => {}, GobiertoBudgetsData::GobiertoBudgets::EXPENSE => {} }
 
 CSV.read(input_file, headers: true).each do |row|
   parse_cell(row, year, 'PROGRAMA')
@@ -172,9 +179,9 @@ end
 
 ## Economic
 
-type = GobiertoData::GobiertoBudgets::ECONOMIC_AREA_NAME
+type = GobiertoBudgetsData::GobiertoBudgets::ECONOMIC_AREA_NAME
 
-@categories = { GobiertoData::GobiertoBudgets::INCOME => {}, GobiertoData::GobiertoBudgets::EXPENSE => {} }
+@categories = { GobiertoBudgetsData::GobiertoBudgets::INCOME => {}, GobiertoBudgetsData::GobiertoBudgets::EXPENSE => {} }
 
 CSV.read(input_file, headers: true).each do |row|
   parse_cell(row, year, 'PARCAPITOL')
@@ -212,10 +219,10 @@ end
 
 ## Functional
 
-type = GobiertoData::GobiertoBudgets::FUNCTIONAL_AREA_NAME
+type = GobiertoBudgetsData::GobiertoBudgets::FUNCTIONAL_AREA_NAME
 
-@categories = { GobiertoData::GobiertoBudgets::INCOME => {}, GobiertoData::GobiertoBudgets::EXPENSE => {} }
-@economic_categories = { GobiertoData::GobiertoBudgets::INCOME => {}, GobiertoData::GobiertoBudgets::EXPENSE => {} }
+@categories = { GobiertoBudgetsData::GobiertoBudgets::INCOME => {}, GobiertoBudgetsData::GobiertoBudgets::EXPENSE => {} }
+@economic_categories = { GobiertoBudgetsData::GobiertoBudgets::INCOME => {}, GobiertoBudgetsData::GobiertoBudgets::EXPENSE => {} }
 
 
 CSV.read(input_file, headers: true).each do |row|
@@ -224,7 +231,7 @@ CSV.read(input_file, headers: true).each do |row|
   parse_cell(row, year, 'PARCLSFUN')
 end
 
-kind = GobiertoData::GobiertoBudgets::EXPENSE
+kind = GobiertoBudgetsData::GobiertoBudgets::EXPENSE
 @categories[kind].each do |code, amount|
   level = code.length
   next if level > 5
