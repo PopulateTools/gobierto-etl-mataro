@@ -79,7 +79,7 @@ pipeline {
         }
         stage('Load > Import executed budgets') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2022-transformed.json 2022"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2021-transformed.json 2021"
             }
         }
         stage('Load > Import planned updated budgets') {
