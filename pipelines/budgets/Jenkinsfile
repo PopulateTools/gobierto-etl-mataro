@@ -58,13 +58,11 @@ pipeline {
         stage('Transform > Transform executed budgets data files') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb ${WORKING_DIR}/pressupost_2021_utf8_clean.csv ${WORKING_DIR}/budgets-executed-2021-transformed.json 2021"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb ${WORKING_DIR}/pressupost_2022_utf8_clean.csv ${WORKING_DIR}/budgets-executed-2022-transformed.json 2022"
             }
         }
         stage('Transform > Transform planned updated budgets data files') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2021_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2021-transformed.json 2021"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2022_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2022-transformed.json 2022"
             }
         }
         stage('Load > Clear previous data') {
@@ -87,7 +85,6 @@ pipeline {
         stage('Load > Import planned updated budgets') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2021-transformed.json 2021"
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2022-transformed.json 2022"
             }
         }
         stage('Load > Import custom categories') {
