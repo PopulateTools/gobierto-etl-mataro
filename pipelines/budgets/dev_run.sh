@@ -71,4 +71,4 @@ cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/g
 cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/publish-activity/run.rb budgets_updated $WORKING_DIR/organization.id.txt
 
 # Clear cache
-cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/clear-cache/run.rb
+cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/clear-cache/run.rb --site-organization-id "$MATARO_INE_CODE" --namespace "GobiertoBudgets"

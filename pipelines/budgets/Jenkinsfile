@@ -6,6 +6,7 @@ pipeline {
         GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
         WORKING_DIR = "/tmp/mataro_budgets"
+        MATARO_ID = "8121"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
         // DOMAIN = "pressupost.mataro.cat"
@@ -22,7 +23,7 @@ pipeline {
         }
         stage('Create organization file') {
             steps {
-              sh "echo '8121' > ${WORKING_DIR}/organization.id.txt"
+              sh "echo '${MATARO_ID}' > ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Extract > Download data sources') {
@@ -115,7 +116,7 @@ pipeline {
         }
         stage('Clear cache') {
           steps {
-            sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb"
+            sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoBudgets'"
           }
         }
     }
