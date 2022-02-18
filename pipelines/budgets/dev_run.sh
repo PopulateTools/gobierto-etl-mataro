@@ -31,7 +31,7 @@ cd $DEV_DIR/gobierto-etl-utils/; ruby operations/check-csv/run.rb $WORKING_DIR/p
 
 # Transform > Transform planned budgets data files
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned/run.rb $WORKING_DIR/pressupost_2021_utf8_clean.csv $WORKING_DIR/budgets-planned-2021-transformed.json 2021
-cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned/run.rb $WORKING_DIR/pressupost_2022_utf8_clean.csv $WORKING_DIR/budgets-planned-2022-transformed.json 2021
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-planned/run.rb $WORKING_DIR/pressupost_2022_utf8_clean.csv $WORKING_DIR/budgets-planned-2022-transformed.json 2022
 
 # Transform > Transform executed budgets data files
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_budgets/transform-executed/run.rb $WORKING_DIR/pressupost_2021_utf8_clean.csv $WORKING_DIR/budgets-executed-2021-transformed.json 2021
