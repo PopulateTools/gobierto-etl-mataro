@@ -1,0 +1,110 @@
+email = "popu-servers+jenkins@populate.tools "
+pipeline {
+    agent any
+    environment {
+        PATH = "$HOME/.rbenv/shims:$PATH"
+        GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
+        MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
+        WORKING_DIR = "/tmp/mataro_costs"
+        DATASET_NAME = "Costes"
+        DATASET_SLUG = "costes"
+        DATASET_TABLE_NAME = "costes"
+        // Variables that must be defined via Jenkins UI:
+        // GOBIERTO_DATA_DEST_URL = ""
+    }
+    options {
+        retry(3)
+    }
+    stages {
+        stage('Clean working dir') {
+          steps {
+              sh "rm -rf ${WORKING_DIR}"
+              sh "mkdir -p ${WORKING_DIR}"
+          }
+        }
+        stage('Extract > 01 file') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSGD3Vxh7MkcBVw8c7ewGm8HlcA30XzynjQvcAC_qKNU6psd3XAig3oZIpxID0_qa3ARDPQTGNvCQDz/pub?gid=327684925&single=true&output=csv' ${WORKING_DIR}/01.csv"
+            }
+        }
+        stage('Extract > 02 file') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwOo3ZVkpRYdus2WHLVnqomuH9ucbdMJpKWx8MV4zUnAHHu52LmdRTIwHR7FHYu6Nc5UxSI0_Z_lV4/pub?gid=985647384&single=true&output=csv' ${WORKING_DIR}/02.csv"
+            }
+        }
+        stage('Extract > 03 file') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTXJM_fkx7G8woctEcuB5nKdIqCVIncoheSY3dbV5uOlOkFXmeHHMJ3pjWjnBec0j-FZiBJ2bA9t940/pub?gid=389343843&single=true&output=csv' ${WORKING_DIR}/03.csv"
+            }
+        }
+        stage('Extract > Check 01 CSV format') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/01.csv"
+            }
+        }
+        stage('Extract > Check 02 CSV format') {
+            steps {
+                sh "cd ${GOBIERT2_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/02.csv"
+            }
+        }
+        stage('Extract > Check 03 CSV format') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/03.csv"
+            }
+        }
+        stage('Load > Upload 01 data to Gobierto data') {
+            steps {
+              sh '''#!/bin/bash
+                source ${MATARO_ETL}/.rbenv-vars;
+                cd ${GOBIERTO_ETL_UTILS};
+                ruby operations/gobierto_data/upload-dataset/run.rb \
+                  --api-token $API_TOKEN \
+                  --name "Deute total" \
+                  --slug $DATASET_SLUG \
+                  --table-name "deute_total" \
+                  --gobierto-url $GOBIERTO_DATA_DEST_URL \
+                  --file-path ${WORKING_DIR}/01.csv
+              '''
+            }
+        }
+        stage('Load > Upload 02 data to Gobierto data') {
+            steps {
+              sh '''#!/bin/bash
+                source ${MATARO_ETL}/.rbenv-vars;
+                cd ${GOBIERTO_ETL_UTILS};
+                ruby operations/gobierto_data/upload-dataset/run.rb \
+                  --api-token $API_TOKEN \
+                  --name "Deute entitat" \
+                  --slug $DATASET_SLUG \
+                  --table-name "deute_entitat" \
+                  --gobierto-url $GOBIERTO_DATA_DEST_URL \
+                  --file-path ${WORKING_DIR}/02.csv
+              '''
+            }
+        }
+        stage('Load > Upload 03 data to Gobierto data') {
+            steps {
+              sh '''#!/bin/bash
+                source ${MATARO_ETL}/.rbenv-vars;
+                cd ${GOBIERTO_ETL_UTILS};
+                ruby operations/gobierto_data/upload-dataset/run.rb \
+                  --api-token $API_TOKEN \
+                  --name "Evolucio" \
+                  --slug $DATASET_SLUG \
+                  --table-name "evolucio" \
+                  --gobierto-url $GOBIERTO_DATA_DEST_URL \
+                  --file-path ${WORKING_DIR}/03.csv
+              '''
+            }
+        }
+    }
+    post {
+        failure {
+            echo 'This will run only if failed'
+            mail body: "Project: ${env.JOB_NAME} - Build Number: ${env.BUILD_NUMBER} - URL de build: ${env.BUILD_URL}",
+                charset: 'UTF-8',
+                subject: "ERROR CI: Project name -> ${env.JOB_NAME}",
+                to: email
+        }
+    }
+}
