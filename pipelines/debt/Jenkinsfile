@@ -41,7 +41,7 @@ pipeline {
         }
         stage('Extract > Check 02 CSV format') {
             steps {
-                sh "cd ${GOBIERT2_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/02.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/02.csv"
             }
         }
         stage('Extract > Check 03 CSV format') {
