@@ -5,10 +5,7 @@ pipeline {
         PATH = "$HOME/.rbenv/shims:$PATH"
         GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
         MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
-        WORKING_DIR = "/tmp/mataro_costs"
-        DATASET_NAME = "Costes"
-        DATASET_SLUG = "costes"
-        DATASET_TABLE_NAME = "costes"
+        WORKING_DIR = "/tmp/mataro_debt"
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO_DATA_DEST_URL = ""
     }
@@ -60,7 +57,7 @@ pipeline {
                 ruby operations/gobierto_data/upload-dataset/run.rb \
                   --api-token $API_TOKEN \
                   --name "Deute total" \
-                  --slug $DATASET_SLUG \
+                  --slug "deute-total" \
                   --table-name "deute_total" \
                   --gobierto-url $GOBIERTO_DATA_DEST_URL \
                   --file-path ${WORKING_DIR}/01.csv
@@ -75,7 +72,7 @@ pipeline {
                 ruby operations/gobierto_data/upload-dataset/run.rb \
                   --api-token $API_TOKEN \
                   --name "Deute entitat" \
-                  --slug $DATASET_SLUG \
+                  --slug "deute-entitat" \
                   --table-name "deute_entitat" \
                   --gobierto-url $GOBIERTO_DATA_DEST_URL \
                   --file-path ${WORKING_DIR}/02.csv
@@ -90,7 +87,7 @@ pipeline {
                 ruby operations/gobierto_data/upload-dataset/run.rb \
                   --api-token $API_TOKEN \
                   --name "Evolucio" \
-                  --slug $DATASET_SLUG \
+                  --slug "evolucio" \
                   --table-name "evolucio" \
                   --gobierto-url $GOBIERTO_DATA_DEST_URL \
                   --file-path ${WORKING_DIR}/03.csv
