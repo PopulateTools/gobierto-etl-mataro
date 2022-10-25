@@ -61,9 +61,8 @@ def parse_amount(row, year)
 end
 
 def parse_cell(row, year, name)
-  return if year == 2021 && (row["IMPASSIG_V3"].blank? || !row["CODIACUM"].blank?)
-  return if year == 2020 && (row["IMPASSIG_V4"].blank? || !row["CODIACUM"].blank?)
-  return if year != 2020 && row["IMPASSIG_V1"].blank?
+  return if year == 2023 && (row["IMPASSIG_V3"].blank? || !row["CODIACUM"].blank?)
+  return if year == 2022 && row["IMPASSIG_V1"].blank?
   return if row[name].blank?
 
   category_name = row[name].strip
