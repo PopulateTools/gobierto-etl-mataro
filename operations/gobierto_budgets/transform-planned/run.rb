@@ -49,7 +49,7 @@ base_data = {
 output_data = []
 
 def parse_amount(row, year)
-  cell_value = if year == 2022
+  cell_value = if year == 2023
                  row["IMPASSIG_V3"]
                else
                  row["IMPASSIG_V1"]
