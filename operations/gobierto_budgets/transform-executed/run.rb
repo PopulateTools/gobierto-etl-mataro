@@ -124,6 +124,8 @@ end
       parent_code = code[0..4]
     end
 
+    next if level >= 4
+
     output_data.push base_data.merge({
       amount: amount.to_f.round(2),
       code: code,
@@ -166,6 +168,7 @@ end
 
     next if @categories[kind].select{|l| l.starts_with?(parent_code) && l != parent_code && l != code }.empty?
     next if amount == 0
+    next if level >= 4
 
     output_data.push base_data.merge({
       amount: amount.to_f.round(2),
@@ -205,6 +208,7 @@ kind = GobiertoBudgetsData::GobiertoBudgets::EXPENSE
 
   next if @categories[kind].select{|l| l.starts_with?(parent_code) && l != parent_code && l != code }.empty?
   next if amount == 0
+  next if level >= 4
 
   output_data.push base_data.merge({
     amount: amount.to_f.round(2),
