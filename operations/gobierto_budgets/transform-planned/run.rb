@@ -49,10 +49,8 @@ base_data = {
 output_data = []
 
 def parse_amount(row, year)
-  cell_value = if year == 2021
+  cell_value = if year == 2023
                  row["IMPASSIG_V3"]
-               elsif year == 2020
-                 row["IMPASSIG_V4"]
                else
                  row["IMPASSIG_V1"]
                end
@@ -61,9 +59,8 @@ def parse_amount(row, year)
 end
 
 def parse_cell(row, year, name)
-  return if year == 2021 && (row["IMPASSIG_V3"].blank? || !row["CODIACUM"].blank?)
-  return if year == 2020 && (row["IMPASSIG_V4"].blank? || !row["CODIACUM"].blank?)
-  return if year != 2020 && row["IMPASSIG_V1"].blank?
+  return if year == 2023 && (row["IMPASSIG_V3"].blank? || !row["CODIACUM"].blank?)
+  return if year == 2022 && row["IMPASSIG_V1"].blank?
   return if row[name].blank?
 
   category_name = row[name].strip
@@ -143,6 +140,8 @@ end
       parent_code = code[0..4]
     end
 
+    next if level >= 4
+
     output_data.push base_data.merge({
       amount: amount.to_f.round(2),
       code: code,
@@ -204,6 +203,7 @@ end
 
     next if @categories[kind].select{|l| l.starts_with?(parent_code) && l != parent_code && l != code }.empty?
     next if amount == 0
+    next if level >= 4
 
     output_data.push base_data.merge({
       amount: amount.to_f.round(2),
@@ -244,6 +244,7 @@ kind = GobiertoBudgetsData::GobiertoBudgets::EXPENSE
 
   next if @categories[kind].select{|l| l.starts_with?(parent_code) && l != parent_code && l != code }.empty?
   next if amount == 0
+  next if level >= 4
 
   output_data.push base_data.merge({
     amount: amount.to_f.round(2),
