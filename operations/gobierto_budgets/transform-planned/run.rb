@@ -49,18 +49,13 @@ base_data = {
 output_data = []
 
 def parse_amount(row, year)
-  cell_value = if year == 2023
-                 row["IMPASSIG_V3"]
-               else
-                 row["IMPASSIG_V4"]
-               end
+  cell_value = row["IMPASSIG_V4"]
 
   cell_value.tr(",", ".").to_f
 end
 
 def parse_cell(row, year, name)
-  return if year == 2023 && (row["IMPASSIG_V3"].blank? || !row["CODIACUM"].blank?)
-  return if year != 2023 && row["IMPASSIG_V4"].blank?
+  return if row["IMPASSIG_V4"].blank?
   return if row[name].blank?
 
   category_name = row[name].strip
