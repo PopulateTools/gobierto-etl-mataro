@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Extract > Download data sources') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/factura_2anys.csv' ${WORKING_DIR}/providers.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://dadesobertes.mataro.cat/factures.csv' ${WORKING_DIR}/providers.csv"
             }
         }
         stage('Extract > Convert data to UTF8') {
