@@ -1,0 +1,60 @@
+email = "popu-servers+jenkins@populate.tools "
+pipeline {
+    agent any
+    environment {
+        PATH = "$HOME/.rbenv/shims:$PATH"
+        GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
+        MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
+        WORKING_DIR = "/tmp/mataro_plans"
+        MATARO_ID = "8121"
+        // Variables that must be defined via Jenkins UI:
+        // GOBIERTO = "/var/www/gobierto/current"
+        // API_HOST = "https://mataro.gobify.net"
+        // PLAN_ID = "52"
+    }
+    options {
+        retry(3)
+    }
+    stages {
+        stage('Clean working dir') {
+          steps {
+              sh "rm -rf ${WORKING_DIR}"
+          }
+        }
+        stage('Extract > Download data sources - Plan data') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/plan_source_data.json"
+            }
+        }
+        stage('Transform > Transform data') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/plan_source_data.json ${WORKING_DIR}/request_body.json"
+            }
+        }
+        stage('Load > Send create/update data to API') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/request_body.json ${API_HOST}/api/v1/plans${PLAN_ID}"
+            }
+        }
+        stage('Load > Publish activity') {
+            steps {
+                sh "echo '8121' > ${WORKING_DIR}/organization.id.txt"
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/publish-activity/run.rb plans_projects_updated ${WORKING_DIR}/organization.id.txt"
+            }
+        }
+        stage('Clear cache') {
+            steps {
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoInvestments'"
+            }
+        }
+    }
+    post {
+        failure {
+            echo 'This will run only if failed'
+            mail body: "Project: ${env.JOB_NAME} - Build Number: ${env.BUILD_NUMBER} - URL de build: ${env.BUILD_URL}",
+                charset: 'UTF-8',
+                subject: "ERROR CI: Project name -> ${env.JOB_NAME}",
+                to: email
+        }
+    }
+}
