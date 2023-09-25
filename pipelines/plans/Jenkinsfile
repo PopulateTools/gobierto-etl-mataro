@@ -29,7 +29,7 @@ pipeline {
         }
         stage('[PAM] Transform > Transform data') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/PAM_source_data.json ${WORKING_DIR}/PAM_request_body.json" "PAM"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/PAM_source_data.json ${WORKING_DIR}/PAM_request_body.json PAM"
             }
         }
         stage('[PAM] Load > Send create/update data to API') {
@@ -44,7 +44,7 @@ pipeline {
         }
         stage('[Urban Agenda 2030] Transform > Transform data') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/urban_agenda_2030_source_data.json ${WORKING_DIR}/urban_agenda_2030_request_body.json" "urban_agenda_2030"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/urban_agenda_2030_source_data.json ${WORKING_DIR}/urban_agenda_2030_request_body.json urban_agenda_2030"
             }
         }
         stage('[Urban Agenda 2030] Load > Send create/update data to API') {
