@@ -32,11 +32,11 @@ puts "[START] upsert-projects/run.rb with #{body_file_path} file"
 
 resp = HTTP.auth(bearer_header).put(api_endpoint, json: JSON.parse(body))
 
+body = JSON.parse(resp.body.to_s)
 if resp.status.success?
-  body = JSON.parse(resp.body.to_s)
   puts "\tPlan with #{body.dig("data", "attributes", "projects")&.count.to_i} processes updated"
 else
-  raise StandardError, "Upsert failed"
+  raise StandardError, "Upsert failed: #{body.inspect}"
 end
 
 puts "[END] upsert-projects/run.rb"
