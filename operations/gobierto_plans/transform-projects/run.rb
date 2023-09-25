@@ -10,21 +10,28 @@ Bundler.require
 # Arguments:
 #
 #  - 0: Absolute path to the source file wich is expected to contain a JSON
-#  - 1: Absoulte estination path of transformed data destination
+#  - 1: Absoulte path of transformed data destination
+#  - 2: Identifier of the plan to include personalizations like the projects level
 # Samples:
 #
-#   /path/to/project/operations/gobierto_plans/transform-projects/run.rb /tmp/mataro_plans/soruce.json /tmp/mataro_plans/transformed_data.json
+#   /path/to/project/operations/gobierto_plans/transform-projects/run.rb /tmp/mataro_plans/soruce.json /tmp/mataro_plans/transformed_data.json PAM
 #
 
-if ARGV.length != 2
+if ARGV.length != 3
   raise "Review the arguments"
 end
 
 source_path = ARGV[0]
 destination_path = ARGV[1]
+plan_identifier = ARGV[2]
 
-def filter_last_level_items(source_data)
-  source_data.select { |src_attrs| src_attrs["nivell"] == "6" }.reject do |src_attrs|
+SOURCE_PLANS_CONFIGURATIONS = {
+  "PAM" => { projects_level: "6", id: 201872 },
+  "urban_agenda_2030" => { projects_level: "4" }
+}
+
+def filter_last_level_items(source_data, plan_identifier)
+  source_data.select { |src_attrs| src_attrs["nivell"] == SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:projects_level] }.reject do |src_attrs|
     # Reject projects with no status and progress 0
     src_attrs["l_estats"].first&.dig("codi").blank? && src_attrs["progres"] == "0"
   end
@@ -56,13 +63,17 @@ def request_body(projects_data)
   }.to_json
 end
 
-puts "[START] transform-projects/run.rb with #{source_path} file"
+puts "[START] [#{plan_identifier}] transform-projects/run.rb with #{source_path} file"
 
-raw_data = JSON.parse(File.read(source_path)).select{ |src_attrs| src_attrs["id_plan"] == 201872 }
+raw_data = JSON.parse(File.read(source_path))
 
-projects_data = filter_last_level_items(raw_data).map { |src_attrs| transformed_project_attributes(src_attrs) }
+if (id = SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:id]).present?
+  raw_data = raw_data.select { |src_attrs| src_attrs["id_plan"] == id }
+end
+
+projects_data = filter_last_level_items(raw_data, plan_identifier).map { |src_attrs| transformed_project_attributes(src_attrs) }
 
 File.write(destination_path, request_body(projects_data))
 puts "\tCreated transformed file #{destination_path}"
 
-puts "[END] transform-projects/run.rb"
+puts "[END] [#{plan_identifier}] transform-projects/run.rb"
