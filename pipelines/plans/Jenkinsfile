@@ -10,7 +10,8 @@ pipeline {
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
         // API_HOST = "https://mataro.gobify.net"
-        // PLAN_ID = "52"
+        // PAM_PLAN_ID = "52"
+        // URBAN_AGENDA_2030_PLAN_ID = "53"
     }
     options {
         retry(3)
@@ -21,30 +22,46 @@ pipeline {
               sh "rm -rf ${WORKING_DIR}"
           }
         }
-        stage('Extract > Download data sources - Plan data') {
+        stage('[PAM] Extract > Download data sources - Plans data') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/plan_source_data.json"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_source_data.json"
             }
         }
-        stage('Transform > Transform data') {
+        stage('[PAM] Transform > Transform data') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/plan_source_data.json ${WORKING_DIR}/request_body.json"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/PAM_source_data.json ${WORKING_DIR}/PAM_request_body.json" "PAM"
             }
         }
-        stage('Load > Send create/update data to API') {
+        stage('[PAM] Load > Send create/update data to API') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/request_body.json ${API_HOST}/api/v1/plans/${PLAN_ID}"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/PAM_request_body.json ${API_HOST}/api/v1/plans/${PAM_PLAN_ID}"
+            }
+        }
+        stage('[Urban Agenda 2030] Extract > Download data sources - Plans data') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/253522' --output-file ${WORKING_DIR}/urban_agenda_2030_source_data.json"
+            }
+        }
+        stage('[Urban Agenda 2030] Transform > Transform data') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/urban_agenda_2030_source_data.json ${WORKING_DIR}/urban_agenda_2030_request_body.json" "urban_agenda_2030"
+            }
+        }
+        stage('[Urban Agenda 2030] Load > Send create/update data to API') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/urban_agenda_2030_request_body.json ${API_HOST}/api/v1/plans/${URBAN_AGENDA_2030_PLAN_ID}"
             }
         }
         stage('Load > Publish activity') {
             steps {
-                sh "echo '8121' > ${WORKING_DIR}/organization.id.txt"
+                sh "echo ${MATARO_ID} > ${WORKING_DIR}/organization.id.txt"
+
                 sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/publish-activity/run.rb plans_projects_updated ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Clear cache') {
             steps {
-                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoInvestments'"
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoPlans'"
             }
         }
     }
