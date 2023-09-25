@@ -33,7 +33,7 @@ pipeline {
         }
         stage('Load > Send create/update data to API') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/request_body.json ${API_HOST}/api/v1/plans${PLAN_ID}"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/request_body.json ${API_HOST}/api/v1/plans/${PLAN_ID}"
             }
         }
         stage('Load > Publish activity') {
