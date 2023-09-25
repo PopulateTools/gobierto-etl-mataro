@@ -45,7 +45,7 @@ pipeline {
         }
         stage('Clear cache') {
             steps {
-                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoInvestments'"
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoPlans'"
             }
         }
     }
