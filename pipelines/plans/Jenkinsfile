@@ -38,7 +38,8 @@ pipeline {
         }
         stage('Load > Publish activity') {
             steps {
-                sh "echo '8121' > ${WORKING_DIR}/organization.id.txt"
+                sh "echo ${MATARO_ID} > ${WORKING_DIR}/organization.id.txt"
+
                 sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/publish-activity/run.rb plans_projects_updated ${WORKING_DIR}/organization.id.txt"
             }
         }
