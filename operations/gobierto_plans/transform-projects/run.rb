@@ -26,7 +26,7 @@ destination_path = ARGV[1]
 plan_identifier = ARGV[2]
 
 SOURCE_PLANS_CONFIGURATIONS = {
-  "PAM" => { projects_level: "6", id: 201872, vocabulary_custom_fields: %w(l_valoracions) },
+  "PAM" => { projects_level: "7", id: 177592, vocabulary_custom_fields: %w(l_valoracions) },
   "urban_agenda_2030" => { projects_level: "4" }
 }
 
