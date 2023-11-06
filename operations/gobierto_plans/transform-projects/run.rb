@@ -42,7 +42,14 @@ def status_external_id(src_attrs)
 end
 
 def vocabulary_custom_field(src_attrs, name)
+  val = src_attrs[name]
+  return val if val.is_a?(String)
+
   src_attrs[name]&.first&.dig("nom") || "Indeterminat"
+end
+
+def string_custom_field(src_attrs, name)
+  src_attrs[name]
 end
 
 def transformed_project_attributes(src_attrs)
@@ -60,8 +67,12 @@ end
 def transformed_project_custom_fields(src_attributes, plan_identifier)
   return {} if SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:vocabulary_custom_fields].blank?
 
-  SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:vocabulary_custom_fields].each_with_object({}) do |k, hsh|
-    hsh["custom_field_vocabulary_options_#{k}"] = vocabulary_custom_field(src_attributes, k)
+  vals = SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:vocabulary_custom_fields].each_with_object({}) do |k, hsh|
+    hsh["custom_field_vocabulary_options_#{k.parameterize}"] = vocabulary_custom_field(src_attributes, k)
+  end
+
+  SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:string_custom_fields].each_with_object(vals) do |k, hsh|
+    hsh["custom_field_string_#{k.parameterize}"] = string_custom_field(src_attributes, k)
   end
 end
 
