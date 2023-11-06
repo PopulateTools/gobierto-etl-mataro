@@ -26,8 +26,8 @@ destination_path = ARGV[1]
 plan_identifier = ARGV[2]
 
 SOURCE_PLANS_CONFIGURATIONS = {
-  "PAM" => { projects_level: "7", id: 177592, vocabulary_custom_fields: %w(l_valoracions) },
-  "urban_agenda_2030" => { projects_level: "4" }
+  "PAM" => { projects_level: "7", vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct), string_custom_fields: %w(codi) },
+  "urban_agenda_2030" => { projects_level: "4", vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct), string_custom_fields: %w(codi) }
 }
 
 def filter_last_level_items(source_data, plan_identifier)
