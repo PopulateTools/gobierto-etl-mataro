@@ -78,8 +78,8 @@ def dates_custom_field_extraction(src_attrs)
   {
     "custom_field_date_data_inici_prevista" => "Data inici prevista",
     "custom_field_date_data_final_prevista" => "Data final prevista",
-    "custom_field_date_data_inici_real" => "Data inici real",
-    "custom_field_date_data_final_real" => "Data final real"
+    "starts_at" => "Data inici real",
+    "ends_at" => "Data final real"
   }.transform_values do |attr|
     date_str = dates_vals.find { |val| val["literal"] == attr }["data"]
 
