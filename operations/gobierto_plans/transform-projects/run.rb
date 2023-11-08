@@ -78,8 +78,8 @@ def dates_custom_field_extraction(src_attrs)
   {
     "custom_field_date_data_inici_prevista" => "Data inici prevista",
     "custom_field_date_data_final_prevista" => "Data final prevista",
-    "custom_field_date_data_inici_real" => "Data inici real",
-    "custom_field_date_data_final_real" => "Data final real"
+    "starts_at" => "Data inici real",
+    "ends_at" => "Data final real"
   }.transform_values do |attr|
     date_str = dates_vals.find { |val| val["literal"] == attr }["data"]
 
@@ -93,7 +93,7 @@ def comments_custom_field_extraction(src_attrs)
   return {} if (comments_vals = src_attrs["l_comentaris"]).blank?
 
   comments_vals = comments_vals.sort { |a, b| a["data"].split("/").reverse.join <=> b["data"].split("/").reverse.join }
-  { "custom_field_paragraph_l_comentaris" => comments_vals.map { |val| "* #{val["data"].tr("/", "-")}: #{val["valor"]}" }.join("\n") }
+  { "custom_field_paragraph_l_comentaris" => comments_vals.map { |val| "* #{val["data"].split("/").map(&:to_i).join("/")}: #{val["valor"]}" }.join("\n") }
 end
 
 def evolution_custom_field_extraction(src_attrs)
