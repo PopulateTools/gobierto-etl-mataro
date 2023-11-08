@@ -93,7 +93,7 @@ def comments_custom_field_extraction(src_attrs)
   return {} if (comments_vals = src_attrs["l_comentaris"]).blank?
 
   comments_vals = comments_vals.sort { |a, b| a["data"].split("/").reverse.join <=> b["data"].split("/").reverse.join }
-  { "custom_field_paragraph_l_comentaris" => comments_vals.map { |val| "* #{val["data"].tr("/", "-")}: #{val["valor"]}" }.join("\n") }
+  { "custom_field_paragraph_l_comentaris" => comments_vals.map { |val| "* #{val["data"].split("/").map(&:to_i).join("/")}: #{val["valor"]}" }.join("\n") }
 end
 
 def evolution_custom_field_extraction(src_attrs)
