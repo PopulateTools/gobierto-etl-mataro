@@ -26,8 +26,28 @@ destination_path = ARGV[1]
 plan_identifier = ARGV[2]
 
 SOURCE_PLANS_CONFIGURATIONS = {
-  "PAM" => { projects_level: "7", vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct), string_custom_fields: %w(codi) },
+  "PAM" => {
+    projects_level: "7",
+    vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct),
+    string_custom_fields: %w(codi descripcio),
+    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction]
+  },
   "urban_agenda_2030" => { projects_level: "4", vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct), string_custom_fields: %w(codi) }
+}
+
+EVOLUTIONS_TRANSLATIONS = {
+  "literal" => {
+    "1er Trimestre" => "1 Trim",
+    "2on Trimestre" => "2 Trim",
+    "3er Trimestre" => "3 Trim",
+    "4rt Trimestre" => "4 Trim"
+  },
+  "estat" => {
+    "EVOLUCIONA" => "Evoluciona adequadament",
+    "SENSE" => "Sense informació",
+    "RETARD" => "Retard/Dificultats",
+    "DIFICULTATS" => "Greus dificultats"
+  }
 }
 
 def filter_last_level_items(source_data, plan_identifier)
@@ -52,6 +72,40 @@ def string_custom_field(src_attrs, name)
   src_attrs[name]
 end
 
+def dates_custom_field_extraction(src_attrs)
+  return {} if (dates_vals = src_attrs["l_dates"]).blank?
+
+  {
+    "custom_field_date_data_inici_prevista" => "Data inici prevista",
+    "custom_field_date_data_final_prevista" => "Data final prevista",
+    "custom_field_date_data_inici_real" => "Data inici real",
+    "custom_field_date_data_final_real" => "Data final real"
+  }.transform_values do |attr|
+    date_str = dates_vals.find { |val| val["literal"] == attr }["data"]
+
+    next if date_str.blank?
+
+    date_str.split("/").reverse.join("-")
+  end
+end
+
+def comments_custom_field_extraction(src_attrs)
+  return {} if (comments_vals = src_attrs["l_comentaris"]).blank?
+
+  comments_vals = comments_vals.sort { |a, b| a["data"].split("/").reverse.join <=> b["data"].split("/").reverse.join }
+  { "custom_field_paragraph_l_comentaris" => comments_vals.map { |val| "* #{val["data"].tr("/", "-")}: #{val["valor"]}" }.join("\n") }
+end
+
+def evolution_custom_field_extraction(src_attrs)
+  return {} if (evolution_vals = src_attrs["l_trimestres"]).blank?
+
+  { "custom_field_paragraph_l_trimestres" => evolution_vals.map { |val| evolution_text(val) }.join("\n") }
+end
+
+def evolution_text(val)
+  "* #{EVOLUTIONS_TRANSLATIONS["literal"][val["literal"]]}: #{EVOLUTIONS_TRANSLATIONS["estat"][val["estat"]]} / #{val["valor"]}%"
+end
+
 def transformed_project_attributes(src_attrs)
   {
     "external_id" => src_attrs["id"],
@@ -74,6 +128,14 @@ def transformed_project_custom_fields(src_attributes, plan_identifier)
   SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:string_custom_fields].each_with_object(vals) do |k, hsh|
     hsh["custom_field_string_#{k.parameterize}"] = string_custom_field(src_attributes, k)
   end
+
+  if (transformed_fields = SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:custom_fields_transformations]).present?
+    transformed_fields.each do |method|
+      vals.merge!(send(method, src_attributes))
+    end
+  end
+
+  vals
 end
 
 def categories_vocabulary_terms(source_data, plan_identifier)
