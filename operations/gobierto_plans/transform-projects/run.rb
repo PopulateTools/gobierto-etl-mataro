@@ -32,7 +32,12 @@ SOURCE_PLANS_CONFIGURATIONS = {
     string_custom_fields: %w(codi descripcio),
     custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction]
   },
-  "urban_agenda_2030" => { projects_level: "4", vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct), string_custom_fields: %w(codi) }
+  "urban_agenda_2030" => {
+    projects_level: "4",
+    vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct),
+    string_custom_fields: %w(codi descripcio),
+    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction]
+  }
 }
 
 EVOLUTIONS_TRANSLATIONS = {
