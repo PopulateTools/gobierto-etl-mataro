@@ -48,18 +48,18 @@ base_data = {
 
 output_data = []
 
-def value_cell
+def value_cell(year)
   year == 2024 ? "IMPASSIG_V3" : "IMPASSIG_V4"
 end
 
 def parse_amount(row, year)
-  cell_value = row[value_cell]
+  cell_value = row[value_cell(year)]
 
   cell_value.tr(",", ".").to_f
 end
 
 def parse_cell(row, year, name)
-  return if row[value_cell].blank?
+  return if row[value_cell(year)].blank?
   return if row[name].blank?
 
   category_name = row[name].strip
