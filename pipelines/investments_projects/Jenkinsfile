@@ -19,6 +19,7 @@ pipeline {
         stage('Clean working dir') {
           steps {
               sh "rm -rf ${WORKING_DIR}"
+              sh "mkdir -p ${WORKING_DIR}"
           }
         }
         stage('Extract > Download data sources - Projects index') {

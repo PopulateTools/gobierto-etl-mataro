@@ -14,6 +14,12 @@ pipeline {
         retry(3)
     }
     stages {
+        stage('Clean working dir') {
+          steps {
+              sh "rm -rf ${WORKING_DIR}"
+              sh "mkdir -p ${WORKING_DIR}"
+          }
+        }
         stage('Extract > Download data sources') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://dadesobertes.mataro.cat/factures.csv' ${WORKING_DIR}/providers.csv"
