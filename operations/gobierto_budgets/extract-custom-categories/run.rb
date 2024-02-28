@@ -32,7 +32,7 @@ domain = ARGV[1]
 
 SITE = Site.find_by! domain: domain
 AREA_NAME = "custom"
-already_updated = {
+$already_updated = {
   GobiertoBudgetsData::GobiertoBudgets::EXPENSE => [],
   GobiertoBudgetsData::GobiertoBudgets::INCOME => []
 }
@@ -43,7 +43,7 @@ def create_or_update_category!(name, code, kind)
   name_translations = { "ca" => name, "es" => name }
   category_attrs = { site: SITE, area_name: AREA_NAME, kind: kind, code: code }
 
-  return if already_updated[kind].include?(code)
+  return if $already_updated[kind].include?(code)
 
   if (category = GobiertoBudgets::Category.where(category_attrs).first)
     category.update_attributes!(custom_name_translations: name_translations)
@@ -55,7 +55,7 @@ def create_or_update_category!(name, code, kind)
     puts "- Created category #{name} (code = #{code}, kind = #{kind})"
   end
 
-  already_updated[kind] << code
+  $already_updated[kind] << code
 end
 
 FIRST_LEVEL_CUSTOM_CATEGORIES.each do |category_name, category_code|
