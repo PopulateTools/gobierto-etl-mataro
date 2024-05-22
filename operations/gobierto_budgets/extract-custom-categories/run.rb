@@ -46,7 +46,7 @@ def create_or_update_category!(name, code, kind)
   return if $already_updated[kind].include?(code)
 
   if (category = GobiertoBudgets::Category.where(category_attrs).first)
-    category.update_attributes!(custom_name_translations: name_translations)
+    category.update!(custom_name_translations: name_translations)
     puts "- Updated category #{name} (code = #{code}, kind = #{kind})"
   else
     GobiertoBudgets::Category.create!(
