@@ -114,7 +114,7 @@ pipeline {
               '''
             }
         }
-               stage('Extract > Download 2022 data sources') {
+        stage('Extract > Download 2022 data sources') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://dadesobertes.mataro.cat/costos_2022.csv' ${WORKING_DIR}/costos_2022.csv"
             }
@@ -141,6 +141,37 @@ pipeline {
                   --table-name $DATASET_TABLE_NAME \
                   --gobierto-url $GOBIERTO_DATA_DEST_URL \
                   --file-path ${WORKING_DIR}/costos_2022_utf8.csv \
+                  --append
+              '''
+            }
+        }
+        stage('Extract > Download 2023 data sources') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://dadesobertes.mataro.cat/costos_2023.csv' ${WORKING_DIR}/costos_2023.csv"
+            }
+        }
+        stage('Extract > Convert 2023 data to UTF8') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/costos_2023.csv ${WORKING_DIR}/costos_2023_utf8.csv ISO-8859-1"
+            }
+        }
+        stage('Extract > Check 2023 CSV format') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/costos_2023_utf8.csv"
+            }
+        }
+        stage('Load > Upload 2023 data to Gobierto data') {
+            steps {
+              sh '''#!/bin/bash
+                source ${MATARO_ETL}/.rbenv-vars;
+                cd ${GOBIERTO_ETL_UTILS};
+                ruby operations/gobierto_data/upload-dataset/run.rb \
+                  --api-token $API_TOKEN \
+                  --name "$DATASET_NAME" \
+                  --slug $DATASET_SLUG \
+                  --table-name $DATASET_TABLE_NAME \
+                  --gobierto-url $GOBIERTO_DATA_DEST_URL \
+                  --file-path ${WORKING_DIR}/costos_2023_utf8.csv \
                   --append
               '''
             }
