@@ -10,7 +10,7 @@ rm -rf $WORKING_DIR
 mkdir $WORKING_DIR
 
 # Extract > Download data sources
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "http://dadesobertes.mataro.cat/factura_2anys.csv" $WORKING_DIR/providers.csv
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/download/run.rb "https://dadesobertes.mataro.cat/factures.csv" $WORKING_DIR/providers.csv
 
 # Extract > Convert data to UTF8
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/convert-to-utf8/run.rb $WORKING_DIR/providers.csv $WORKING_DIR/providers_utf8.csv
