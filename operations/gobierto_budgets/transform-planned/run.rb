@@ -49,7 +49,7 @@ base_data = {
 output_data = []
 
 def value_cell(year)
-  year == 2024 ? "IMPASSIG_V3" : "IMPASSIG_V4"
+  year == 2025 ? "IMPASSIG_V3" : "IMPASSIG_V4"
 end
 
 def parse_amount(row, year)
@@ -83,7 +83,7 @@ def parse_cell(row, year, name)
 
   if category_code.to_s.length == 4
     parent_category_name = row['PARCLSFUN_GRP'].strip
-    @parent_categories[category_code] = FIRST_LEVEL_CUSTOM_CATEGORIES[parent_category_name]
+    @parent_categories[kind][category_code] = FIRST_LEVEL_CUSTOM_CATEGORIES[parent_category_name]
   end
 
   @categories[kind][category_code] ||= 0
@@ -104,7 +104,7 @@ end
 
 type = GobiertoBudgetsData::GobiertoBudgets::CUSTOM_AREA_NAME
 
-@parent_categories = {}
+@parent_categories = { GobiertoBudgetsData::GobiertoBudgets::INCOME => {}, GobiertoBudgetsData::GobiertoBudgets::EXPENSE => {} }
 @categories = { GobiertoBudgetsData::GobiertoBudgets::INCOME => {}, GobiertoBudgetsData::GobiertoBudgets::EXPENSE => {} }
 @economic_categories = { GobiertoBudgetsData::GobiertoBudgets::INCOME => {}, GobiertoBudgetsData::GobiertoBudgets::EXPENSE => {} }
 
@@ -130,7 +130,7 @@ end
       parent_code = nil
     when 4
       level = 2
-      parent_code = @parent_categories[code]
+      parent_code = @parent_categories[kind][code]
     when 5
       level = 3
       parent_code = code[0..-2]

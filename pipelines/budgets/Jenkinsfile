@@ -16,100 +16,160 @@ pipeline {
     }
     stages {
         stage('Clean working dir') {
-          steps {
-              sh "rm -rf ${WORKING_DIR}"
-              sh "mkdir -p ${WORKING_DIR}"
-          }
+            steps {
+                sh "rm -rf ${WORKING_DIR}"
+                sh "mkdir -p ${WORKING_DIR}"
+            }
         }
         stage('Create organization file') {
             steps {
-              sh "echo '${MATARO_ID}' > ${WORKING_DIR}/organization.id.txt"
+                sh "echo '${MATARO_ID}' > ${WORKING_DIR}/organization.id.txt"
             }
         }
-        stage('Extract > Download data sources') {
+        stage('Extract > Download data sources 2024') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2024.csv' ${WORKING_DIR}/pressupost_2024.csv"
             }
         }
-        stage('Extract > Convert data to UTF8') {
+        stage('Extract > Convert data to UTF8 2024') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/pressupost_2024.csv ${WORKING_DIR}/pressupost_2024_utf8.csv ISO-8859-1"
             }
         }
-        stage('Extract > Clean wrong quotes') {
+        stage('Extract > Clean wrong quotes 2024') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/clean-quotes/run.rb ${WORKING_DIR}/pressupost_2024_utf8.csv ${WORKING_DIR}/pressupost_2024_utf8_clean.csv"
             }
         }
-        stage('Extract > Check CSV format') {
+        stage('Extract > Check CSV format 2024') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/pressupost_2024_utf8_clean.csv"
             }
         }
-        stage('Transform > Transform planned budgets data files') {
+        stage('Transform > Transform planned budgets data files 2024') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb ${WORKING_DIR}/pressupost_2024_utf8_clean.csv ${WORKING_DIR}/budgets-planned-2024-transformed.json 2024"
             }
         }
-        stage('Transform > Transform executed budgets data files') {
+        stage('Transform > Transform executed budgets data files 2024') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb ${WORKING_DIR}/pressupost_2024_utf8_clean.csv ${WORKING_DIR}/budgets-executed-2024-transformed.json 2024"
             }
         }
-        stage('Transform > Transform planned updated budgets data files') {
+        stage('Transform > Transform planned updated budgets data files 2024') {
             steps {
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2024_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2024-transformed.json 2024"
             }
         }
-        stage('Load > Clear previous data') {
+        stage('Load > Clear previous data 2024') {
             steps {
-              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2024"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2024"
             }
         }
-        stage('Load > Import planned budgets') {
+        stage('Load > Import planned budgets 2024') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2024-transformed.json 2024"
             }
         }
-        stage('Load > Import executed budgets') {
+        stage('Load > Import executed budgets 2024') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2024-transformed.json 2024"
             }
         }
-        stage('Load > Import planned updated budgets') {
+        stage('Load > Import planned updated budgets 2024') {
             steps {
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2024-transformed.json 2024"
             }
         }
-        stage('Load > Import custom categories') {
+        stage('Load > Import custom categories 2024') {
             steps {
                 sh "cd ${GOBIERTO}; bin/rails runner ${MATARO_ETL}/operations/gobierto_budgets/extract-custom-categories/run.rb ${WORKING_DIR}/pressupost_2024_utf8_clean.csv ${DOMAIN}"
             }
         }
+        stage('Extract > Download data sources 2025') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2025.csv' ${WORKING_DIR}/pressupost_2025.csv"
+            }
+        }
+        stage('Extract > Convert data to UTF8 2025') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/pressupost_2025.csv ${WORKING_DIR}/pressupost_2025_utf8.csv ISO-8859-1"
+            }
+        }
+        stage('Extract > Clean wrong quotes 2025') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/clean-quotes/run.rb ${WORKING_DIR}/pressupost_2025_utf8.csv ${WORKING_DIR}/pressupost_2025_utf8_clean.csv"
+            }
+        }
+        stage('Extract > Check CSV format 2025') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/pressupost_2025_utf8_clean.csv"
+            }
+        }
+        stage('Transform > Transform planned budgets data files 2025') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb ${WORKING_DIR}/pressupost_2025_utf8_clean.csv ${WORKING_DIR}/budgets-planned-2025-transformed.json 2025"
+            }
+        }
+        stage('Transform > Transform executed budgets data files 2025') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb ${WORKING_DIR}/pressupost_2025_utf8_clean.csv ${WORKING_DIR}/budgets-executed-2025-transformed.json 2025"
+            }
+        }
+        stage('Transform > Transform planned updated budgets data files 2025') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2025_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2025-transformed.json 2025"
+            }
+        }
+        stage('Load > Clear previous data 2025') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2025"
+            }
+        }
+        stage('Load > Import planned budgets 2025') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2025-transformed.json 2025"
+            }
+        }
+        stage('Load > Import executed budgets 2025') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2025-transformed.json 2025"
+            }
+        }
+        stage('Load > Import planned updated budgets 2025') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2025-transformed.json 2025"
+            }
+        }
+        stage('Load > Import custom categories 2025') {
+            steps {
+                sh "cd ${GOBIERTO}; bin/rails runner ${MATARO_ETL}/operations/gobierto_budgets/extract-custom-categories/run.rb ${WORKING_DIR}/pressupost_2025_utf8_clean.csv ${DOMAIN}"
+            }
+        }
         stage('Load > Calculate totals') {
             steps {
-              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/update_total_budget/run.rb '2024' ${WORKING_DIR}/organization.id.txt"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/update_total_budget/run.rb '2024 2025' ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Load > Calculate bubbles') {
             steps {
-              sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/bubbles/run.rb ${WORKING_DIR}/organization.id.txt"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/bubbles/run.rb ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Load > Calculate annual data') {
             steps {
-              sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto_budgets/annual_data/run.rb '2024' ${WORKING_DIR}/organization.id.txt"
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto_budgets/annual_data/run.rb '2024 2025' ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Load > Publish activity') {
             steps {
-              sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/publish-activity/run.rb budgets_updated ${WORKING_DIR}/organization.id.txt"
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/publish-activity/run.rb budgets_updated ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Clear cache') {
-          steps {
-            sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoBudgets'"
-          }
+            steps {
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoBudgets'"
+            }
         }
     }
     post {
