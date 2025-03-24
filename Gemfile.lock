@@ -116,7 +116,7 @@ GEM
     mutex_m (0.3.0)
     net-http (0.4.1)
       uri
-    nokogiri (1.18.3)
+    nokogiri (1.18.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     oj (3.16.3)
