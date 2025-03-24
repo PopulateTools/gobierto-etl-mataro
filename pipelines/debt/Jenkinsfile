@@ -21,17 +21,17 @@ pipeline {
         }
         stage('Extract > 01 file') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://eu-west-1.console.aws.amazon.com/s3/object/gobierto-data?region=eu-west-1&bucketType=general&prefix=mataro/debt_2025/01_deute_total.csv' ${WORKING_DIR}/01.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://gobierto-data.s3.eu-west-1.amazonaws.com/mataro/debt_2025/01_deute_total.csv' ${WORKING_DIR}/01.csv"
             }
         }
         stage('Extract > 02 file') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://eu-west-1.console.aws.amazon.com/s3/object/gobierto-data?region=eu-west-1&bucketType=general&prefix=mataro/debt_2025/02_deute_entitat.csv' ${WORKING_DIR}/02.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://gobierto-data.s3.eu-west-1.amazonaws.com/mataro/debt_2025/02_deute_entitat.csv' ${WORKING_DIR}/02.csv"
             }
         }
         stage('Extract > 03 file') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://eu-west-1.console.aws.amazon.com/s3/object/gobierto-data?region=eu-west-1&bucketType=general&prefix=mataro/debt_2025/03_evolucio.csv' ${WORKING_DIR}/03.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://gobierto-data.s3.eu-west-1.amazonaws.com/mataro/debt_2025/03_evolucio.csv' ${WORKING_DIR}/03.csv"
             }
         }
         stage('Extract > Check 01 CSV format') {
