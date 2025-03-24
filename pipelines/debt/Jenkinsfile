@@ -21,17 +21,17 @@ pipeline {
         }
         stage('Extract > 01 file') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTHIdov9lafdCd0LBPF2QaEL5yH2id-Y0NmE1Ea0ZCD1BRx8KDT-igdc--d0PfXNMWoKweUaFEg9OWJ/pub?gid=1598563576&single=true&output=csv' ${WORKING_DIR}/01.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://gobierto-data.s3.eu-west-1.amazonaws.com/mataro/debt_2025/01_deute_total.csv' ${WORKING_DIR}/01.csv"
             }
         }
         stage('Extract > 02 file') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTaBYPGv4BuTxySHbnerBCNDo9nAi2lfgWLznLPE8j375MLgZo1VPmdilbtOjw8UCXkr3ssuZqKjtop/pub?gid=258749260&single=true&output=csv' ${WORKING_DIR}/02.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://gobierto-data.s3.eu-west-1.amazonaws.com/mataro/debt_2025/02_deute_entitat.csv' ${WORKING_DIR}/02.csv"
             }
         }
         stage('Extract > 03 file') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcLTtHrCzaKGrOxdtjphsDFpu_9ISeRtIdO3TrmNVSqZHDLLKb9f3U2Cp2Hnr7L0TniBzuISewnw7F/pub?gid=1443714695&single=true&output=csv' ${WORKING_DIR}/03.csv"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://gobierto-data.s3.eu-west-1.amazonaws.com/mataro/debt_2025/03_evolucio.csv' ${WORKING_DIR}/03.csv"
             }
         }
         stage('Extract > Check 01 CSV format') {
