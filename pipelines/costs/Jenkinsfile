@@ -176,6 +176,37 @@ pipeline {
               '''
             }
         }
+        stage('Extract > Download 2024 data sources') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'https://dadesobertes.mataro.cat/costos_2024.csv' ${WORKING_DIR}/costos_2024.csv"
+            }
+        }
+        stage('Extract > Convert 2024 data to UTF8') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/costos_2024.csv ${WORKING_DIR}/costos_2024_utf8.csv ISO-8859-1"
+            }
+        }
+        stage('Extract > Check 2024 CSV format') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/costos_2024_utf8.csv"
+            }
+        }
+        stage('Load > Upload 2024 data to Gobierto data') {
+            steps {
+              sh '''#!/bin/bash
+                source ${MATARO_ETL}/.rbenv-vars;
+                cd ${GOBIERTO_ETL_UTILS};
+                ruby operations/gobierto_data/upload-dataset/run.rb \
+                  --api-token $API_TOKEN \
+                  --name "$DATASET_NAME" \
+                  --slug $DATASET_SLUG \
+                  --table-name $DATASET_TABLE_NAME \
+                  --gobierto-url $GOBIERTO_DATA_DEST_URL \
+                  --file-path ${WORKING_DIR}/costos_2024_utf8.csv \
+                  --append
+              '''
+            }
+        }
     }
     post {
         failure {
