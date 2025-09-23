@@ -40,6 +40,8 @@ data_path = ARGV[4]
 transformed_path = ARGV[5]
 api_host = ARGV[6]
 
+new_api = /_new\.txt\z/.match?(external_ids_file)
+
 attachments_opts = {
   attachments_collection_id: ARGV[7],
   bearer_header: "Bearer #{ENV.fetch("API_TOKEN")}",
@@ -59,7 +61,8 @@ projects_extra_data = JSON.parse(File.open(projects_extra_data_file).read)
 puts "[START] transform-projects/run.rb with #{external_ids.count} file(s)"
 
 detailed_data = external_ids.inject({}) do |accumulated, id|
-  detailed_content = File.open(File.join(data_path, "#{id}.json")).read
+  filename = new_api ? "#{id}-new.json" : "#{id}.json"
+  detailed_content = File.open(File.join(data_path, filename)).read
   accumulated.update(
     id => JSON.parse(detailed_content)
   )
@@ -110,14 +113,16 @@ def process_attachments_of(content, opts = {})
     next processed_files if raw_files.blank?
 
     processed_files + raw_files.map do |raw_file_data|
-      resp = HTTP.auth(opts[:bearer_header]).post(opts[:attachments_endpoint], :json => attachment_body(raw_file_data, opts[:attachments_collection_id]))
-      if resp.status.success?
-        body = JSON.parse(resp.body.to_s)
-        raise StandardError, "File uploaded, but no attachment url has been returned" if (url =  body.dig("attachment", "url")).blank?
-        with_metadata ? body.dig("attachment").slice("file_name", "url", "human_readable_url", "file_size").merge(raw_file_data.slice("nom")) : url
-      else
-        raise StandardError, "File upload failed"
-      end
+      puts  "File upload simulated"
+      # resp = HTTP.auth(opts[:bearer_header]).post(opts[:attachments_endpoint], :json => attachment_body(raw_file_data, opts[:attachments_collection_id]))
+      # if resp.status.success?
+      #   body = JSON.parse(resp.body.to_s)
+      #   raise StandardError, "File uploaded, but no attachment url has been returned" if (url =  body.dig("attachment", "url")).blank?
+      #   with_metadata ? body.dig("attachment").slice("file_name", "url", "human_readable_url", "file_size").merge(raw_file_data.slice("nom")) : url
+        with_metadata ? {}.merge(raw_file_data.slice("nom")) : 'url'
+      # else
+      #   raise StandardError, "File upload failed"
+      # end
     end
   end
 end
@@ -174,7 +179,8 @@ end
 new_keys = []
 
 detailed_data.each do |k, v|
-  content = v["items"][0]["detallobre2"][0].merge(projects_extra_data[k.to_s])
+  detail_key = new_api ? "detallobrainv" : "detallobre2"
+  content = v["items"][0][detail_key][0].merge(projects_extra_data[k.to_s])
 
   new_keys = new_keys | (content.keys - @keys_translations.keys)
   new_hash = JSON.parse(new_json)
