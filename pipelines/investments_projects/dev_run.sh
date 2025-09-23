@@ -7,38 +7,39 @@ MATARO_INE_CODE=8121
 API_HOST=http://mataro.gobierto.test:3000
 ATTACHMENTS_COLLECTION_ID=2026
 
-# # Clean working dir
-# rm -rf $WORKING_DIR
-# mkdir $WORKING_DIR
+# Clean working dir
+rm -rf $WORKING_DIR
+mkdir $WORKING_DIR
 
-# # Extract > Download data sources - Projects index
-# cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobres2" --output-file $WORKING_DIR/llistaobres.json
-# cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobresinv" --output-file $WORKING_DIR/llistaobres_new.json
+# Extract > Download data sources - Projects index
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobres2" --output-file $WORKING_DIR/llistaobres.json
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobresinv" --output-file $WORKING_DIR/llistaobres_new.json
 
-# # Extract > Download data sources - API resources
-# cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "$API_HOST/gobierto_investments/api/v1/projects/meta" --output-file $WORKING_DIR/meta.json --bearer-token $API_TOKEN
-# cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "$API_HOST/gobierto_investments/api/v1/projects/new" --output-file $WORKING_DIR/new.json --bearer-token $API_TOKEN
+# Extract > Download data sources - API resources
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "$API_HOST/gobierto_investments/api/v1/projects/meta" --output-file $WORKING_DIR/meta.json --bearer-token $API_TOKEN
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "$API_HOST/gobierto_investments/api/v1/projects/new" --output-file $WORKING_DIR/new.json --bearer-token $API_TOKEN
 
 # Extract > Extract external ids of projects
-# cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb $WORKING_DIR/llistaobres.json $WORKING_DIR/external_ids.txt $WORKING_DIR/projects_extra_data.json
-# cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb $WORKING_DIR/llistaobres_new.json $WORKING_DIR/external_ids_new.txt $WORKING_DIR/projects_extra_data_new.json
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb $WORKING_DIR/llistaobres.json $WORKING_DIR/external_ids.txt $WORKING_DIR/projects_extra_data.json
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb $WORKING_DIR/llistaobres_new.json $WORKING_DIR/external_ids_new.txt $WORKING_DIR/projects_extra_data_new.json
 
 # Extract > Download data sources - Individual projects
-# for i in $(cat $WORKING_DIR/external_ids.txt) ; do
-#   cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobre2/$i" --output-file $WORKING_DIR/downloaded_projects/$i.json
-# done
-# for i in $(cat $WORKING_DIR/external_ids_new.txt) ; do
-#   cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobrainv/$i" --output-file $WORKING_DIR/downloaded_projects/$i-new.json
-# done
+for i in $(cat $WORKING_DIR/external_ids.txt) ; do
+  cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobre2/$i" --output-file $WORKING_DIR/downloaded_projects/$i.json
+done
+for i in $(cat $WORKING_DIR/external_ids_new.txt) ; do
+  cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobrainv/$i" --output-file $WORKING_DIR/downloaded_projects/$i-new.json
+done
 
 # Transform > Transform data
-# cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/transform-projects/run.rb $WORKING_DIR/external_ids.txt $WORKING_DIR/meta.json $WORKING_DIR/projects_extra_data.json $WORKING_DIR/new.json $WORKING_DIR/downloaded_projects/ $WORKING_DIR/transformed_projects/ $API_HOST $ATTACHMENTS_COLLECTION_ID
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/transform-projects/run.rb $WORKING_DIR/external_ids.txt $WORKING_DIR/meta.json $WORKING_DIR/projects_extra_data.json $WORKING_DIR/new.json $WORKING_DIR/downloaded_projects/ $WORKING_DIR/transformed_projects/ $API_HOST $ATTACHMENTS_COLLECTION_ID
 cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/transform-projects/run.rb $WORKING_DIR/external_ids_new.txt $WORKING_DIR/meta.json $WORKING_DIR/projects_extra_data_new.json $WORKING_DIR/new.json $WORKING_DIR/downloaded_projects/ $WORKING_DIR/transformed_projects/ $API_HOST $ATTACHMENTS_COLLECTION_ID
 
-# # Load > Send create/update data and deletions to API
-# cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/load-projects/run.rb $WORKING_DIR/external_ids.txt $WORKING_DIR/transformed_projects/ $API_HOST
-# cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/delete-projects/run.rb $WORKING_DIR/external_ids.txt $API_HOST
+# Load > Send create/update data and deletions to API
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/load-projects/run.rb $WORKING_DIR/external_ids.txt $WORKING_DIR/transformed_projects/ $API_HOST
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/load-projects/run.rb $WORKING_DIR/external_ids_new.txt $WORKING_DIR/transformed_projects/ $API_HOST
+cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/delete-projects/run.rb $API_HOST $WORKING_DIR/external_ids.txt $WORKING_DIR/external_ids_new.txt
 
-# # Load > Publish activity
-# echo $MATARO_INE_CODE > $WORKING_DIR/organization.id.txt
-# cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/publish-activity/run.rb investments_projects_updated $WORKING_DIR/organization.id.txt
+# Load > Publish activity
+echo $MATARO_INE_CODE > $WORKING_DIR/organization.id.txt
+cd $DEV_DIR/gobierto/; bin/rails runner $DEV_DIR/gobierto-etl-utils/operations/gobierto/publish-activity/run.rb investments_projects_updated $WORKING_DIR/organization.id.txt
