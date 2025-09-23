@@ -108,7 +108,7 @@ def process_attachments_of(content, opts = {})
   processed_files = []
 
   keys.inject([]) do |processed_files, attachment_key|
-    raw_files = content[attachment_key]
+    raw_files = content[attachment_key]&.reject { |file_data| file_data["content"].blank? }
 
     next processed_files if raw_files.blank?
 
