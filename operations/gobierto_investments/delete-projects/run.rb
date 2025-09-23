@@ -11,27 +11,30 @@ require "http"
 #
 # Arguments:
 #
-#  - 0: Absolute path to a file containing the external ids of projects. There
-#       is expected that there is a json file for each external id with the id
-#       in the name
-#  - 1: API host
+#  - 0: API host
+#  - 1-...: A sucession of bsolute paths to files containing the external ids of projects.
+#           There is expected that there is a json file for each external id with the id
+#           in the name
 #
 # Samples:
 #
-#   /path/to/project/operations/gobierto_investments/delete-projects/run.rb  external_ids_file.txt http://mataro.gobierto.test
+#   /path/to/project/operations/gobierto_investments/delete-projects/run.rb http://mataro.gobierto.test external_ids_file.txt other_external_ids_file.txt
 #
 
-if ARGV.length != 2
+if ARGV.length < 2
   raise "Review the arguments"
 end
 
-external_ids_file = ARGV[0]
-api_host = ARGV[1]
+
+api_host = ARGV[0]
+external_ids_files = ARGV[1..]
 bearer_header = "Bearer #{ENV.fetch("API_TOKEN")}"
 projects_endpoint = "#{api_host}/gobierto_investments/api/v1/projects"
 project_endpoint = ->(project_id) { "#{api_host}/gobierto_investments/api/v1/projects/#{project_id}" }
 
-external_ids = File.open(external_ids_file).read.split(" ")
+external_ids = external_ids_files.map do |external_ids_file|
+  File.open(external_ids_file).read.split(" ")
+end.flatten.uniq
 
 puts "[START] delete-projects/run.rb with #{external_ids.count} file(s)"
 
