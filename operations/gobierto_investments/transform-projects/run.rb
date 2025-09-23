@@ -113,16 +113,14 @@ def process_attachments_of(content, opts = {})
     next processed_files if raw_files.blank?
 
     processed_files + raw_files.map do |raw_file_data|
-      puts  "File upload simulated"
-      # resp = HTTP.auth(opts[:bearer_header]).post(opts[:attachments_endpoint], :json => attachment_body(raw_file_data, opts[:attachments_collection_id]))
-      # if resp.status.success?
-      #   body = JSON.parse(resp.body.to_s)
-      #   raise StandardError, "File uploaded, but no attachment url has been returned" if (url =  body.dig("attachment", "url")).blank?
-      #   with_metadata ? body.dig("attachment").slice("file_name", "url", "human_readable_url", "file_size").merge(raw_file_data.slice("nom")) : url
-        with_metadata ? {}.merge(raw_file_data.slice("nom")) : 'url'
-      # else
-      #   raise StandardError, "File upload failed"
-      # end
+      resp = HTTP.auth(opts[:bearer_header]).post(opts[:attachments_endpoint], :json => attachment_body(raw_file_data, opts[:attachments_collection_id]))
+      if resp.status.success?
+        body = JSON.parse(resp.body.to_s)
+        raise StandardError, "File uploaded, but no attachment url has been returned" if (url =  body.dig("attachment", "url")).blank?
+        with_metadata ? body.dig("attachment").slice("file_name", "url", "human_readable_url", "file_size").merge(raw_file_data.slice("nom")) : url
+      else
+        raise StandardError, "File upload failed"
+      end
     end
   end
 end
