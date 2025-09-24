@@ -121,6 +121,7 @@ def process_attachments_of(content, opts = {})
       else
         raise StandardError, "File upload failed"
       end
+      sleep(2)
     end
   end
 end
@@ -133,6 +134,7 @@ def create_term(vocabulary_id, opts)
   else
     raise StandardError, "Term creation failed"
   end
+  sleep(2)
 end
 
 @cf_keys = JSON.parse(meta)["data"].map{|e| e["attributes"]["uid"]} - %w(gallery documents budget tipus-projecte-tipus-concatenation)
