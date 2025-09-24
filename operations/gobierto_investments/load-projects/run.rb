@@ -48,6 +48,7 @@ external_ids.each do |id|
     raise StandardError, "Project creation/update failed. API response: #{JSON.parse(resp.body.to_s).inspect}"
   end
   puts "====================\n\n\n\n"
+  sleep(2)
 end
 
 puts "[END] load-projects/run.rb"

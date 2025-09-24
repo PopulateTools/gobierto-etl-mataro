@@ -57,6 +57,7 @@ missing_existing_projects.each do |external_id, id|
     raise StandardError, "Project with external id #{external_id} and id #{id} deletion failed. API response: #{resp.body}"
   end
   puts "====================\n\n\n\n"
+  sleep(2)
 end
 
 puts "[END] delete-projects/run.rb"
