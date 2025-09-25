@@ -41,6 +41,7 @@ external_ids.each do |id|
 
   puts "===================="
   resp = HTTP.auth(bearer_header).post(projects_endpoint, :json => data)
+  sleep(2)
   if resp.status.success?
     puts "Project creation/update successful. API response:"
     puts JSON.parse(resp.body.to_s).inspect
@@ -48,7 +49,6 @@ external_ids.each do |id|
     raise StandardError, "Project creation/update failed. API response: #{JSON.parse(resp.body.to_s).inspect}"
   end
   puts "====================\n\n\n\n"
-  sleep(2)
 end
 
 puts "[END] load-projects/run.rb"
