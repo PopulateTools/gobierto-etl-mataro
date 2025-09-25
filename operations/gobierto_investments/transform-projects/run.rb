@@ -114,6 +114,7 @@ def process_attachments_of(content, opts = {})
 
     processed_files + raw_files.map do |raw_file_data|
       resp = HTTP.auth(opts[:bearer_header]).post(opts[:attachments_endpoint], :json => attachment_body(raw_file_data, opts[:attachments_collection_id]))
+      sleep(2)
       if resp.status.success?
         body = JSON.parse(resp.body.to_s)
         raise StandardError, "File uploaded, but no attachment url has been returned" if (url =  body.dig("attachment", "url")).blank?
@@ -121,20 +122,19 @@ def process_attachments_of(content, opts = {})
       else
         raise StandardError, "File upload failed"
       end
-      sleep(2)
     end
   end
 end
 
 def create_term(vocabulary_id, opts)
   resp = HTTP.auth(opts[:bearer_header]).post(opts[:terms_endpoint].call(vocabulary_id), :json => opts.slice(:term))
+  sleep(2)
   if resp.status.success?
     body = JSON.parse(resp.body.to_s)
     body["id"]
   else
     raise StandardError, "Term creation failed"
   end
-  sleep(2)
 end
 
 @cf_keys = JSON.parse(meta)["data"].map{|e| e["attributes"]["uid"]} - %w(gallery documents budget tipus-projecte-tipus-concatenation)

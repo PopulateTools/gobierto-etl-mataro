@@ -51,13 +51,13 @@ end
 missing_existing_projects.each do |external_id, id|
   puts "===================="
   resp = HTTP.auth(bearer_header).delete(project_endpoint.call(id))
+  sleep(2)
   if resp.status.success?
     puts "Project with external id #{external_id} and id #{id} deletion successful."
   else
     raise StandardError, "Project with external id #{external_id} and id #{id} deletion failed. API response: #{resp.body}"
   end
   puts "====================\n\n\n\n"
-  sleep(2)
 end
 
 puts "[END] delete-projects/run.rb"
