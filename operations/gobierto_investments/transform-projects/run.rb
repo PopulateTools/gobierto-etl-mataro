@@ -49,6 +49,10 @@ attachments_opts = {
   terms_endpoint: ->(vocabulary_id) {"#{api_host}/admin/api/vocabularies/#{vocabulary_id}/terms"}
 }
 
+TRANSFORMATION_RULES = {
+  "estat" => { "-" => "Creat" }
+}.freeze
+
 if File.join(transformed_path, "/") != "./"
   FileUtils.mkdir_p(File.join(transformed_path, "/"))
 end
@@ -86,6 +90,14 @@ def get_value(content, key)
   end
   content_key = @keys_translations.find{ |_, v| v == key}[0]
   content[content_key]
+end
+
+def apply_transformation_rule(value, key)
+  transformed_value = TRANSFORMATION_RULES.dig(key, value)
+
+  return value if transformed_value.blank?
+
+  transformed_value
 end
 
 def meta(key)
@@ -188,6 +200,7 @@ detailed_data.each do |k, v|
   @cf_keys.each do |cf_k|
     meta_data = meta(cf_k)
     val = get_value(content, cf_k)
+    val = apply_transformation_rule(val, cf_k)
     value = if meta_data.field_type == "vocabulary_options"
               vocabulary = vocabulary(cf_k)
               if vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val }.blank?
