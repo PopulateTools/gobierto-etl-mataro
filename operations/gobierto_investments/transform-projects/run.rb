@@ -49,6 +49,10 @@ attachments_opts = {
   terms_endpoint: ->(vocabulary_id) {"#{api_host}/admin/api/vocabularies/#{vocabulary_id}/terms"}
 }
 
+TRANSFORMATION_RULES = {
+  "estat" => { "-" => "Creat" }
+}.freeze
+
 if File.join(transformed_path, "/") != "./"
   FileUtils.mkdir_p(File.join(transformed_path, "/"))
 end
@@ -88,6 +92,14 @@ def get_value(content, key)
   content[content_key]
 end
 
+def apply_transformation_rule(value, key)
+  transformed_value = TRANSFORMATION_RULES.dig(key, value)
+
+  return value if transformed_value.blank?
+
+  transformed_value
+end
+
 def meta(key)
   data = @meta_data.dig("data").find{ |e| e.dig("attributes", "uid") == key.to_s }
   OpenStruct.new(data.dig("attributes"))
@@ -114,6 +126,7 @@ def process_attachments_of(content, opts = {})
 
     processed_files + raw_files.map do |raw_file_data|
       resp = HTTP.auth(opts[:bearer_header]).post(opts[:attachments_endpoint], :json => attachment_body(raw_file_data, opts[:attachments_collection_id]))
+      sleep(2)
       if resp.status.success?
         body = JSON.parse(resp.body.to_s)
         raise StandardError, "File uploaded, but no attachment url has been returned" if (url =  body.dig("attachment", "url")).blank?
@@ -121,20 +134,19 @@ def process_attachments_of(content, opts = {})
       else
         raise StandardError, "File upload failed"
       end
-      sleep(2)
     end
   end
 end
 
 def create_term(vocabulary_id, opts)
   resp = HTTP.auth(opts[:bearer_header]).post(opts[:terms_endpoint].call(vocabulary_id), :json => opts.slice(:term))
+  sleep(2)
   if resp.status.success?
     body = JSON.parse(resp.body.to_s)
     body["id"]
   else
     raise StandardError, "Term creation failed"
   end
-  sleep(2)
 end
 
 @cf_keys = JSON.parse(meta)["data"].map{|e| e["attributes"]["uid"]} - %w(gallery documents budget tipus-projecte-tipus-concatenation)
@@ -188,6 +200,7 @@ detailed_data.each do |k, v|
   @cf_keys.each do |cf_k|
     meta_data = meta(cf_k)
     val = get_value(content, cf_k)
+    val = apply_transformation_rule(val, cf_k)
     value = if meta_data.field_type == "vocabulary_options"
               vocabulary = vocabulary(cf_k)
               if vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val }.blank?
