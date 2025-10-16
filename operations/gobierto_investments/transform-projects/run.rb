@@ -113,6 +113,35 @@ def vocabulary_id(key)
   meta(key).options.dig("vocabulary_id")
 end
 
+def process_multiple_terms(vocabulary_id, destination_terms, custom_field_key, value, attachments_opts)
+  return [] if value.blank?
+
+  terms_ids = value.map do |source_term|
+    external_id = source_term["id"]
+    text = source_term["nom"]
+
+    destination_term = destination_terms.find { |term| term["external_id"] == external_id }
+    if destination_term.blank?
+      new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: text }, external_id: }))
+      puts "Name #{text} is not present in vocabulary for #{custom_field_key} custom field. New term created or get from the API"
+      new_term_id
+    else
+      destination_term["id"]
+    end
+  end
+end
+
+def process_single_term(vocabulary_id, destination_terms, custom_field_key, value, attachments_opts)
+  destination_term = destination_terms.find { |term| term.dig("name_translations", "ca") == value || term.dig("name") == value }
+  if destination_term.blank?
+    new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: value } }))
+    puts "Name #{value} is not present in vocabulary for #{custom_field_key} custom field. New term created or get from the API"
+    new_term_id
+  else
+    destination_term["id"]
+  end
+end
+
 def process_attachments_of(content, opts = {})
   keys = opts.fetch(:keys, [])
   with_metadata = opts.fetch(:with_metadata, false)
@@ -202,13 +231,12 @@ detailed_data.each do |k, v|
     val = get_value(content, cf_k)
     val = apply_transformation_rule(val, cf_k)
     value = if meta_data.field_type == "vocabulary_options"
-              vocabulary = vocabulary(cf_k)
-              if vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val }.blank?
-                new_term_id = create_term(vocabulary_id(cf_k), attachments_opts.merge(term: { name_translations: { ca: val } }))
-                puts "Name #{val} is not present in vocabulary for #{cf_k} custom field. New term created or get from the API"
-                new_term_id
+              v_terms = vocabulary(cf_k)
+              v_id = vocabulary_id(cf_k)
+              if meta_data.options.dig("configuration", "vocabulary_type") == "multiple_select"
+                process_multiple_terms(v_id, v_terms, cf_k, val, attachments_opts).map(&:to_s)
               else
-                (vocabulary(cf_k).find{ |e| e.dig("name_translations", "ca") == val || e.dig("name") == val } || {})["id"]
+                process_single_term(v_id, v_terms, cf_k, val, attachments_opts)
               end
             elsif meta_data.field_type == "localized_string"
               { ca: val }
