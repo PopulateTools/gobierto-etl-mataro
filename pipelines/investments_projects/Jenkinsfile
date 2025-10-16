@@ -24,7 +24,6 @@ pipeline {
         }
         stage('Extract > Download data sources - Projects index') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobres2' --output-file ${WORKING_DIR}/llistaobres.json"
                 sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobresinv' --output-file ${WORKING_DIR}/llistaobres_new.json"
             }
         }
@@ -40,27 +39,23 @@ pipeline {
         }
         stage('Extract > Extract external ids of projects') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb ${WORKING_DIR}/llistaobres.json ${WORKING_DIR}/external_ids.txt ${WORKING_DIR}/projects_extra_data.json"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb ${WORKING_DIR}/llistaobres_new.json ${WORKING_DIR}/external_ids_new.txt ${WORKING_DIR}/projects_extra_data_new.json"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/extract-projects-external-ids-and-extra-data/run.rb ${WORKING_DIR}/llistaobres_new.json ${WORKING_DIR}/external_ids_new.txt $WORKING_DIR/codes_new.txt ${WORKING_DIR}/projects_extra_data_new.json"
             }
         }
         stage('Extract > Download data sources - Individual projects') {
             steps {
-                sh "for i in \$(cat ${WORKING_DIR}/external_ids.txt) ; do cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url \"https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobre2/\$i\" --output-file ${WORKING_DIR}/downloaded_projects/\$i.json; done"
                 sh "for i in \$(cat ${WORKING_DIR}/external_ids_new.txt) ; do cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url \"https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobrainv/\$i\" --output-file ${WORKING_DIR}/downloaded_projects/\$i-new.json; done"
             }
         }
         stage('Transform > Transform data') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/transform-projects/run.rb ${WORKING_DIR}/external_ids.txt ${WORKING_DIR}/meta.json ${WORKING_DIR}/projects_extra_data.json ${WORKING_DIR}/new.json ${WORKING_DIR}/downloaded_projects/ ${WORKING_DIR}/transformed_projects/ ${API_HOST} ${ATTACHMENTS_COLLECTION_ID}"
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/transform-projects/run.rb ${WORKING_DIR}/external_ids_new.txt ${WORKING_DIR}/meta.json ${WORKING_DIR}/projects_extra_data_new.json ${WORKING_DIR}/new.json ${WORKING_DIR}/downloaded_projects/ ${WORKING_DIR}/transformed_projects/ ${API_HOST} ${ATTACHMENTS_COLLECTION_ID}"
             }
         }
         stage('Load > Send create/update data and deletions to API') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/load-projects/run.rb ${WORKING_DIR}/external_ids.txt ${WORKING_DIR}/transformed_projects/ ${API_HOST}"
                 sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/load-projects/run.rb ${WORKING_DIR}/external_ids_new.txt ${WORKING_DIR}/transformed_projects/ ${API_HOST}"
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/delete-projects/run.rb ${API_HOST} ${WORKING_DIR}/external_ids.txt ${WORKING_DIR}/external_ids_new.txt"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_investments/delete-projects/run.rb ${API_HOST} ${WORKING_DIR}/codes_new.txt"
             }
         }
         stage('Load > Publish activity') {

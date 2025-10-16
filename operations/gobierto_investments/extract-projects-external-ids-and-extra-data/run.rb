@@ -12,7 +12,9 @@ Bundler.require
 #  - 0: Absolute path to the input file
 #  - 1: Absolute path to the output file with the list of ids to send
 #       indivicual requests
-#  - 2: Absoulte path to the output file with a json containing data of each
+#  - 2: Absolute path to the output file with the list of codes to check
+#       external_ids
+#  - 3: Absoulte path to the output file with a json containing data of each
 #       project not present in individual requests
 #
 # Samples:
@@ -20,19 +22,21 @@ Bundler.require
 #   /path/to/project/operations/gobierto_budgets/extract-projects-external-ids-and-extra-data/run.rb input.json external_ids.txt data.json
 #
 
-if ARGV.length != 3
+if ARGV.length != 4
   raise "Review the arguments"
 end
 
 input_file = ARGV[0]
 output_ids_file = ARGV[1]
-output_data_file = ARGV[2]
+output_codes_file = ARGV[2]
+output_data_file = ARGV[3]
 
-puts "[START] extract-projects-external-ids-and-extra-data/run.rb with input_file=#{input_file} output_ids_file=#{output_ids_file} and output_data_file=#{output_data_file}"
+puts "[START] extract-projects-external-ids-and-extra-data/run.rb with input_file=#{input_file}, output_ids_file=#{output_ids_file}, output_codes_file=#{output_codes_file} and output_data_file=#{output_data_file}"
 
 input = File.open(input_file).read
 parsed_data = JSON.parse(input)["items"][0]["llistaobres2"]
 ids = parsed_data.map { |item| item["id"] }
+codes = parsed_data.map { |item| item["codi"] }
 
 data = parsed_data.inject({}) do |hsh, item|
   hsh.update(
@@ -45,6 +49,12 @@ if File.dirname(output_ids_file) != "."
 end
 
 File.write(output_ids_file, ids.join(" "))
+
+if File.dirname(output_codes_file) != "."
+  FileUtils.mkdir_p(File.dirname(output_codes_file))
+end
+
+File.write(output_codes_file, codes.join(" "))
 
 if File.dirname(output_data_file) != "."
   FileUtils.mkdir_p(File.dirname(output_data_file))
