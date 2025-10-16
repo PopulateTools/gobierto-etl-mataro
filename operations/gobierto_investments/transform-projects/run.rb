@@ -212,7 +212,11 @@ end
   "tipus" => "tipus",
   "import" => "import-main",
   "financament" => "financament",
-  "data_aprovacio" => "data-aprovacio"
+  "data_aprovacio" => "data-aprovacio",
+  "data_inici_obra" => "data-inici-obra",
+  "data_final_obra" => "data-final-obra",
+  "zones" => "zones",
+  "consells_territorials" => "consells-territorials"
 }
 
 @meta_data = JSON.parse(meta).with_indifferent_access
