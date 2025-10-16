@@ -251,7 +251,7 @@ detailed_data.each do |k, v|
     end
   end
 
-  new_hash["data"]["attributes"]["external_id"] = k
+  new_hash["data"]["attributes"]["external_id"] = content["codi"]
   new_hash["data"]["attributes"]["gallery"] = process_attachments_of(content, attachments_opts.merge(keys: ["imagen_principal", "imagenes_i_documents", "imagenes"]))
   new_hash["data"]["attributes"]["documents"] = process_attachments_of(content, attachments_opts.merge(keys: ["documents"], with_metadata: true))
   new_hash["data"]["attributes"]["tipus-projecte-tipus-concatenation"] = { ca:  %w(tipus-projecte tipus).map { |e| get_value(content, e)}.join(" - ") }
