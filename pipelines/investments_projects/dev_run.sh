@@ -12,7 +12,7 @@ rm -rf $WORKING_DIR
 mkdir $WORKING_DIR
 
 # Extract > Download data sources - Projects index
-cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobresinv" --output-file $WORKING_DIR/llistaobres_new.json
+cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://apex.mataro.org/ords/rest/sigmav2/llistaobresinv" --output-file $WORKING_DIR/llistaobres_new.json
 
 # Extract > Download data sources - API resources
 cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "$API_HOST/gobierto_investments/api/v1/projects/meta" --output-file $WORKING_DIR/meta.json --bearer-token $API_TOKEN
@@ -23,7 +23,7 @@ cd $DEV_DIR/gobierto-etl-mataro/; ruby operations/gobierto_investments/extract-p
 
 # Extract > Download data sources - Individual projects
 for i in $(cat $WORKING_DIR/external_ids_new.txt) ; do
-  cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobrainv/$i" --output-file $WORKING_DIR/downloaded_projects/$i-new.json
+  cd $DEV_DIR/gobierto-etl-utils/; ruby operations/api-download/run.rb --source-url "https://apex.mataro.org/ords/rest/sigmav2/detallobrainv/$i" --output-file $WORKING_DIR/downloaded_projects/$i-new.json
 done
 
 # Transform > Transform data

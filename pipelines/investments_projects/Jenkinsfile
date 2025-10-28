@@ -24,7 +24,7 @@ pipeline {
         }
         stage('Extract > Download data sources - Projects index') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/llistaobresinv' --output-file ${WORKING_DIR}/llistaobres_new.json"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/llistaobresinv' --output-file ${WORKING_DIR}/llistaobres_new.json"
             }
         }
         stage('Extract > Download data sources - API resources') {
@@ -44,7 +44,7 @@ pipeline {
         }
         stage('Extract > Download data sources - Individual projects') {
             steps {
-                sh "for i in \$(cat ${WORKING_DIR}/external_ids_new.txt) ; do cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url \"https://aplicacions.mataro.org:444/apex/rest/sigmav2/detallobrainv/\$i\" --output-file ${WORKING_DIR}/downloaded_projects/\$i-new.json; done"
+                sh "for i in \$(cat ${WORKING_DIR}/external_ids_new.txt) ; do cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url \"https://apex.mataro.org/ords/rest/sigmav2/detallobrainv/\$i\" --output-file ${WORKING_DIR}/downloaded_projects/\$i-new.json; done"
             }
         }
         stage('Transform > Transform data') {
