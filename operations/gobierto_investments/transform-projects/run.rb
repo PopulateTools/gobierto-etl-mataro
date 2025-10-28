@@ -218,7 +218,8 @@ end
   "data_inici_obra" => "data-inici-obra",
   "data_final_obra" => "data-final-obra",
   "zones" => "zones",
-  "consells_territorials" => "consells-territorials"
+  "consells_territorials" => "consells-territorials",
+  "any_pla_inversions" => "any-pla-inversions"
 }
 
 @meta_data = JSON.parse(meta).with_indifferent_access
