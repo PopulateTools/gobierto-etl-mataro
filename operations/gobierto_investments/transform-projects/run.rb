@@ -50,7 +50,8 @@ attachments_opts = {
 }
 
 TRANSFORMATION_RULES = {
-  "estat" => { "-" => "Creat" }
+  "estat" => { "-" => "Creat" },
+  "wkt" => { "POINT( )" => NilClass }
 }.freeze
 
 if File.join(transformed_path, "/") != "./"
@@ -96,6 +97,7 @@ def apply_transformation_rule(value, key)
   transformed_value = TRANSFORMATION_RULES.dig(key, value)
 
   return value if transformed_value.blank?
+  return nil if transformed_value == NilClass
 
   transformed_value
 end
