@@ -119,17 +119,7 @@ def process_multiple_terms(vocabulary_id, destination_terms, custom_field_key, v
   return [] if value.blank?
 
   terms_ids = value.map do |source_term|
-    external_id = source_term["id"]
-    text = source_term["nom"]
-
-    destination_term = destination_terms.find { |term| term["external_id"] == external_id }
-    if destination_term.blank?
-      new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: text }, external_id: }))
-      puts "Name #{text} is not present in vocabulary for #{custom_field_key} custom field. New term created or get from the API"
-      new_term_id
-    else
-      destination_term["id"]
-    end
+    detect_term_id_from_vocabulary(source_term, vocabulary_id, destination_terms, custom_field_key, attachments_opts)
   end
 end
 
@@ -138,6 +128,23 @@ def process_single_term(vocabulary_id, destination_terms, custom_field_key, valu
   if destination_term.blank?
     new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: value } }))
     puts "Name #{value} is not present in vocabulary for #{custom_field_key} custom field. New term created or get from the API"
+    new_term_id
+  else
+    destination_term["id"]
+  end
+end
+
+def detect_term_id_from_vocabulary(source_term, vocabulary_id, destination_terms, custom_field_key, attachments_opts)
+  return source_term["nom"] if vocabulary_id.blank?
+
+  external_id = source_term["id"]
+  text = source_term["nom"]
+  text = text.to_s if text.present?
+
+  destination_term = destination_terms.find { |term| term["external_id"] == external_id }
+  if destination_term.blank?
+    new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: text }, external_id: }))
+    puts "Name #{text} is not present in vocabulary for #{custom_field_key} custom field. New term created or obtained from the API"
     new_term_id
   else
     destination_term["id"]
