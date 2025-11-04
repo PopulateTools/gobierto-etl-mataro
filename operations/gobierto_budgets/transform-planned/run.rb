@@ -49,7 +49,12 @@ base_data = {
 output_data = []
 
 def value_cell(year)
-  year == 2025 ? "IMPASSIG_V3" : "IMPASSIG_V4"
+  case year
+  when 2026
+    "IMPASSIG_V3"
+  else
+    "IMPASSIG_V4"
+  end
 end
 
 def parse_amount(row, year)
