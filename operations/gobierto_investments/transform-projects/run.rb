@@ -124,6 +124,7 @@ def process_multiple_terms(vocabulary_id, destination_terms, custom_field_key, v
 end
 
 def process_single_term(vocabulary_id, destination_terms, custom_field_key, value, attachments_opts)
+  value = value.to_s if value.present?
   destination_term = destination_terms.find { |term| term.dig("name_translations", "ca") == value || term.dig("name") == value }
   if destination_term.blank?
     new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: value } }))
