@@ -146,9 +146,69 @@ pipeline {
                 sh "cd ${GOBIERTO}; bin/rails runner ${MATARO_ETL}/operations/gobierto_budgets/extract-custom-categories/run.rb ${WORKING_DIR}/pressupost_2025_utf8_clean.csv ${DOMAIN}"
             }
         }
+        stage('Extract > Download data sources 2026') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/download/run.rb 'http://dadesobertes.mataro.cat/pressupost_2026.csv' ${WORKING_DIR}/pressupost_2026.csv"
+            }
+        }
+        stage('Extract > Convert data to UTF8 2026') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/convert-to-utf8/run.rb ${WORKING_DIR}/pressupost_2026.csv ${WORKING_DIR}/pressupost_2026_utf8.csv ISO-8859-1"
+            }
+        }
+        stage('Extract > Clean wrong quotes 2026') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/clean-quotes/run.rb ${WORKING_DIR}/pressupost_2026_utf8.csv ${WORKING_DIR}/pressupost_2026_utf8_clean.csv"
+            }
+        }
+        stage('Extract > Check CSV format 2026') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/check-csv/run.rb ${WORKING_DIR}/pressupost_2026_utf8_clean.csv"
+            }
+        }
+        stage('Transform > Transform planned budgets data files 2026') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned/run.rb ${WORKING_DIR}/pressupost_2026_utf8_clean.csv ${WORKING_DIR}/budgets-planned-2026-transformed.json 2026"
+            }
+        }
+        stage('Transform > Transform executed budgets data files 2026') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-executed/run.rb ${WORKING_DIR}/pressupost_2026_utf8_clean.csv ${WORKING_DIR}/budgets-executed-2026-transformed.json 2026"
+            }
+        }
+        stage('Transform > Transform planned updated budgets data files 2026') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_budgets/transform-planned-updated/run.rb ${WORKING_DIR}/pressupost_2026_utf8_clean.csv ${WORKING_DIR}/budgets-planned-updated-2026-transformed.json 2026"
+            }
+        }
+        stage('Load > Clear previous data 2026') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/clear-budgets/run.rb ${WORKING_DIR}/organization.id.txt 2026"
+            }
+        }
+        stage('Load > Import planned budgets 2026') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets/run.rb ${WORKING_DIR}/budgets-planned-2026-transformed.json 2026"
+            }
+        }
+        stage('Load > Import executed budgets 2026') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-executed-budgets/run.rb ${WORKING_DIR}/budgets-executed-2026-transformed.json 2026"
+            }
+        }
+        stage('Load > Import planned updated budgets 2026') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/import-planned-budgets-updated/run.rb ${WORKING_DIR}/budgets-planned-updated-2026-transformed.json 2026"
+            }
+        }
+        stage('Load > Import custom categories 2026') {
+            steps {
+                sh "cd ${GOBIERTO}; bin/rails runner ${MATARO_ETL}/operations/gobierto_budgets/extract-custom-categories/run.rb ${WORKING_DIR}/pressupost_2026_utf8_clean.csv ${DOMAIN}"
+            }
+        }
         stage('Load > Calculate totals') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/update_total_budget/run.rb '2024 2025' ${WORKING_DIR}/organization.id.txt"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/gobierto_budgets/update_total_budget/run.rb '2024 2025 2026' ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Load > Calculate bubbles') {
@@ -158,7 +218,7 @@ pipeline {
         }
         stage('Load > Calculate annual data') {
             steps {
-                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto_budgets/annual_data/run.rb '2024 2025' ${WORKING_DIR}/organization.id.txt"
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto_budgets/annual_data/run.rb '2024 2025 2026' ${WORKING_DIR}/organization.id.txt"
             }
         }
         stage('Load > Publish activity') {
