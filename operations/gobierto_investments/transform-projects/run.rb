@@ -125,7 +125,14 @@ end
 
 def process_single_term(vocabulary_id, destination_terms, custom_field_key, value, attachments_opts)
   value = value.to_s if value.present?
-  destination_term = destination_terms.find { |term| term.dig("name_translations", "ca") == value || term.dig("name") == value }
+  keys_sequences = [%w(name_translations ca), %w(name)]
+
+  destination_term = destination_terms.find do |term|
+    keys_sequences.any? { |seq| nested_key_exists?(term, *seq) && term.dig(*seq) == value }
+  end
+
+  return if destination_term.blank? && value.blank?
+
   if destination_term.blank?
     new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: value } }))
     puts "Name #{value} is not present in vocabulary for #{custom_field_key} custom field. New term created or get from the API"
@@ -230,6 +237,15 @@ def create_term(vocabulary_id, opts)
   else
     raise StandardError, "Term creation failed"
   end
+end
+
+def nested_key_exists?(hash, *keys)
+  keys.reduce(hash) do |h, key|
+    return false unless h.is_a?(Hash) && h.key?(key)
+
+    h[key]
+  end
+  true
 end
 
 @cf_keys = JSON.parse(meta)["data"].map{|e| e["attributes"]["uid"]} - %w(gallery documents budget tipus-projecte-tipus-concatenation)
