@@ -272,7 +272,10 @@ end
   "zones" => "zones",
   "consells_territorials" => "consells-territorials",
   "any_pla_inversions" => "any-pla-inversions",
-  "estats" => "estats"
+  "estats" => "estats",
+  "import_adjudicacio_ambiva" => "import-adjudicacio-ambiva",
+  "import_licitacio_ambiva" => "import-licitacio-ambiva",
+  "import_liquidacio_ambiva" => "import-liquidacio-ambiva"
 }
 
 @meta_data = JSON.parse(meta).with_indifferent_access
