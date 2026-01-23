@@ -76,11 +76,18 @@ base_attributes = if place
 
 puts "[START] transform-providers/run.rb data_file=#{data_file}"
 nitems = 0
+skipped_items = 0
 CSV.foreach(data_file, headers: true) do |row|
   date = parse_mataro_data(row['DATA_FRA'])
-  next if date.nil?
+  if date.nil?
+    skipped_items += 1
+    next
+  end
   payment_date = parse_mataro_data(row['DATA_PAGAMENT'])
-  next if payment_date.nil?
+  if payment_date.nil?
+    skipped_items += 1
+    next
+  end
   attributes = base_attributes.merge({
     value: row['IMPORT'].tr(',', '.').to_f,
     date: date.strftime("%Y-%m-%d"),
@@ -99,6 +106,9 @@ CSV.foreach(data_file, headers: true) do |row|
 
   output_data << attributes
 end
+
+puts "[INFO] skipped #{skipped_items} items"
+puts "[INFO] transformed #{nitems} items"
 
 File.write(output_file, output_data.to_json)
 
