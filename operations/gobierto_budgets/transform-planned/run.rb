@@ -50,7 +50,7 @@ output_data = []
 
 def value_cell(year)
   case year
-  when 2026
+  when 2026, 2025
     "IMPASSIG_V3"
   else
     "IMPASSIG_V4"

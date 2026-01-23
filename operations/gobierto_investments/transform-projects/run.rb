@@ -119,28 +119,87 @@ def process_multiple_terms(vocabulary_id, destination_terms, custom_field_key, v
   return [] if value.blank?
 
   terms_ids = value.map do |source_term|
-    external_id = source_term["id"]
-    text = source_term["nom"]
-
-    destination_term = destination_terms.find { |term| term["external_id"] == external_id }
-    if destination_term.blank?
-      new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: text }, external_id: }))
-      puts "Name #{text} is not present in vocabulary for #{custom_field_key} custom field. New term created or get from the API"
-      new_term_id
-    else
-      destination_term["id"]
-    end
+    detect_term_id_from_vocabulary(source_term, vocabulary_id, destination_terms, custom_field_key, attachments_opts)
   end
 end
 
 def process_single_term(vocabulary_id, destination_terms, custom_field_key, value, attachments_opts)
-  destination_term = destination_terms.find { |term| term.dig("name_translations", "ca") == value || term.dig("name") == value }
+  value = value.to_s if value.present?
+  keys_sequences = [%w(name_translations ca), %w(name)]
+
+  destination_term = destination_terms.find do |term|
+    keys_sequences.any? { |seq| nested_key_exists?(term, *seq) && term.dig(*seq) == value }
+  end
+
+  return if destination_term.blank? && value.blank?
+
   if destination_term.blank?
     new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: value } }))
     puts "Name #{value} is not present in vocabulary for #{custom_field_key} custom field. New term created or get from the API"
     new_term_id
   else
     destination_term["id"]
+  end
+end
+
+def process_table(configuration, terms, cf_k, value, attachments_opts)
+  value = transform_table_source(cf_k, value)
+  return value if configuration["columns"].blank? || value.blank?
+
+  columns_configs = configuration["columns"].each_with_object({}) do |data, config|
+    if data["type"] == "vocabulary"
+      data["vocabulary_id"] = data["dataSource"]&.match(/\d+\z/)&.[](1) || configuration["vocabulary_ids"]&.first
+    end
+    config[data["id"]] = data
+  end
+  columns_ids = columns_configs.keys
+
+  value.map do |row|
+    direct_values = row.slice(*columns_ids)
+
+    direct_values.each_with_object({}) do |(k,v), transformed_row|
+      conf = columns_configs[k]
+
+      transformed_row[k] = case conf["type"]
+                           when "vocabulary"
+                             detect_term_id_from_vocabulary(v, conf["vocabulary_id"], terms, cf_k, attachments_opts)
+                          when "date"
+                            v.present? ? Date.parse(v).to_s : v
+                           else
+                             v
+                           end
+    end
+  end
+end
+
+def detect_term_id_from_vocabulary(source_term, vocabulary_id, destination_terms, custom_field_key, attachments_opts)
+  return source_term["nom"] if vocabulary_id.blank?
+
+  external_id = source_term["id"]
+  text = source_term["nom"]
+  text = text.to_s if text.present?
+
+  destination_term = destination_terms.find { |term| term["external_id"] == external_id }
+  if destination_term.blank?
+    new_term_id = create_term(vocabulary_id, attachments_opts.merge(term: { name_translations: { ca: text }, external_id: }))
+    puts "Name #{text} is not present in vocabulary for #{custom_field_key} custom field. New term created or obtained from the API"
+    new_term_id
+  else
+    destination_term["id"]
+  end
+end
+
+def transform_table_source(cf_k, value)
+  case cf_k
+  when "estats"
+    value = value.sort_by { |row| row["codi"] }
+    value.map do |row|
+      term_id = row.delete("codi")
+      row["nom"] = { "id" => term_id, "nom" => row["nom"] }
+      row
+    end
+  else
+    value
   end
 end
 
@@ -178,6 +237,15 @@ def create_term(vocabulary_id, opts)
   else
     raise StandardError, "Term creation failed"
   end
+end
+
+def nested_key_exists?(hash, *keys)
+  keys.reduce(hash) do |h, key|
+    return false unless h.is_a?(Hash) && h.key?(key)
+
+    h[key]
+  end
+  true
 end
 
 @cf_keys = JSON.parse(meta)["data"].map{|e| e["attributes"]["uid"]} - %w(gallery documents budget tipus-projecte-tipus-concatenation)
@@ -219,7 +287,11 @@ end
   "data_final_obra" => "data-final-obra",
   "zones" => "zones",
   "consells_territorials" => "consells-territorials",
-  "any_pla_inversions" => "any-pla-inversions"
+  "any_pla_inversions" => "any-pla-inversions",
+  "estats" => "estats",
+  "import_adjudicacio_ambiva" => "import-adjudicacio-ambiva",
+  "import_licitacio_ambiva" => "import-licitacio-ambiva",
+  "import_liquidacio_ambiva" => "import-liquidacio-ambiva"
 }
 
 @meta_data = JSON.parse(meta).with_indifferent_access
@@ -237,7 +309,8 @@ detailed_data.each do |k, v|
     meta_data = meta(cf_k)
     val = get_value(content, cf_k)
     val = apply_transformation_rule(val, cf_k)
-    value = if meta_data.field_type == "vocabulary_options"
+    value = case meta_data.field_type
+            when "vocabulary_options"
               v_terms = vocabulary(cf_k)
               v_id = vocabulary_id(cf_k)
               if meta_data.options.dig("configuration", "vocabulary_type") == "multiple_select"
@@ -245,10 +318,18 @@ detailed_data.each do |k, v|
               else
                 process_single_term(v_id, v_terms, cf_k, val, attachments_opts)
               end
-            elsif meta_data.field_type == "localized_string"
+            when "localized_string"
               { ca: val }
-            elsif meta_data.field_type == "date"
+            when "date"
               val.present? ? Date.parse(val).to_s : val
+            when "plugin"
+              if meta_data.options.dig("configuration", "plugin_type") == "table"
+                v_terms = vocabulary(cf_k)
+                configuration = meta(cf_k).options.dig("configuration", "plugin_configuration")
+                process_table(configuration, v_terms, cf_k, val, attachments_opts)
+              else
+                val
+              end
             else
               val
             end
