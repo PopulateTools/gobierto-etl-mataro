@@ -18,6 +18,8 @@ Bundler.require
 #   /path/to/project/operations/gobierto_budgets/transform-providers/run.rb 8019 input.csv output.json
 #
 
+SKIPPED_STATES = ["Abonament compensat", "Proposta pagament", "Retornada a proveïdor"].freeze
+
 if ARGV.length != 3
   raise "At least one argument is required"
 end
@@ -83,18 +85,18 @@ CSV.foreach(data_file, headers: true) do |row|
     skipped_items += 1
     next
   end
-  payment_date = parse_mataro_data(row['DATA_PAGAMENT'])
-  if payment_date.nil?
+  if SKIPPED_STATES.include?(row['ESTAT_FRA'])
     skipped_items += 1
     next
   end
+  payment_date = parse_mataro_data(row['DATA_PAGAMENT'])
   attributes = base_attributes.merge({
     value: row['IMPORT'].tr(',', '.').to_f,
     date: date.strftime("%Y-%m-%d"),
     invoice_id: SecureRandom.uuid,
     provider_id: row['NIF_PROV'].try(:strip),
     provider_name: row['NOM_PROV'].try(:strip),
-    payment_date: payment_date.strftime("%Y-%m-%d"),
+    payment_date: payment_date.presence && payment_date.strftime("%Y-%m-%d"),
     paid: row['ESTAT_FRA'].downcase.strip == 'pagada',
     subject: row['CONCEPTE_FRA'].try(:strip),
     freelance: row['NIF_PROV'] !~ /\A[A-Z]/i,
