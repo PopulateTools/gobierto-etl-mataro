@@ -84,17 +84,13 @@ CSV.foreach(data_file, headers: true) do |row|
     next
   end
   payment_date = parse_mataro_data(row['DATA_PAGAMENT'])
-  if payment_date.nil?
-    skipped_items += 1
-    next
-  end
   attributes = base_attributes.merge({
     value: row['IMPORT'].tr(',', '.').to_f,
     date: date.strftime("%Y-%m-%d"),
     invoice_id: SecureRandom.uuid,
     provider_id: row['NIF_PROV'].try(:strip),
     provider_name: row['NOM_PROV'].try(:strip),
-    payment_date: payment_date.strftime("%Y-%m-%d"),
+    payment_date: payment_date.presence && payment_date.strftime("%Y-%m-%d"),
     paid: row['ESTAT_FRA'].downcase.strip == 'pagada',
     subject: row['CONCEPTE_FRA'].try(:strip),
     freelance: row['NIF_PROV'] !~ /\A[A-Z]/i,
