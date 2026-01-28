@@ -18,6 +18,8 @@ Bundler.require
 #   /path/to/project/operations/gobierto_budgets/transform-providers/run.rb 8019 input.csv output.json
 #
 
+SKIPPED_STATES = ["Abonament compensat", "Proposta pagament", "Retornada a proveïdor"].freeze
+
 if ARGV.length != 3
   raise "At least one argument is required"
 end
@@ -80,6 +82,10 @@ skipped_items = 0
 CSV.foreach(data_file, headers: true) do |row|
   date = parse_mataro_data(row['DATA_FRA'])
   if date.nil?
+    skipped_items += 1
+    next
+  end
+  if SKIPPED_STATES.include?(row['ESTAT_FRA'])
     skipped_items += 1
     next
   end
