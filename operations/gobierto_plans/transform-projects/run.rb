@@ -55,8 +55,8 @@ EVOLUTIONS_TRANSLATIONS = {
   }
 }
 
-def filter_last_level_items(source_data, plan_identifier)
-  source_data.select { |src_attrs| src_attrs["nivell"] == SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:projects_level] }.reject do |src_attrs|
+def filter_last_level_items(source_data, plan_identifier, levels)
+  source_data.select { |src_attrs| src_attrs["nivell"] == levels }.reject do |src_attrs|
     # Reject projects with no status and progress 0
     src_attrs["l_estats"].first&.dig("codi").blank? && src_attrs["progres"] == "0"
   end
@@ -143,8 +143,8 @@ def transformed_project_custom_fields(src_attributes, plan_identifier)
   vals
 end
 
-def categories_vocabulary_terms(source_data, plan_identifier)
-  source_data.select { |e| e["nivell"] != SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:projects_level] && e["nivell"] != "1" }.map do |e|
+def categories_vocabulary_terms(source_data, plan_identifier, levels)
+  source_data.select { |e| e["nivell"] != levels && e["nivell"] != "1" }.map do |e|
     {
       "name_translations" => { "ca" => e["nom"], "en" => nil, "es" => nil },
       "slug" => "#{e["codi_tipus"]}-#{e["id"]}".parameterize,
@@ -177,6 +177,11 @@ def request_body(projects_data, vocabularies_data = {})
   }.to_json
 end
 
+def detect_levels(source_data, plan_identifier)
+  max_levels =  source_data.select { |e| e["es_fulla"] == "1" }.map { |e| e["nivell"] }.uniq
+  max_levels.size == 1 ? max_levels.first : SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:projects_level]
+end
+
 puts "[START] [#{plan_identifier}] transform-projects/run.rb with #{source_path} file"
 
 raw_data = JSON.parse(File.read(source_path))
@@ -185,9 +190,11 @@ if (id = SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:id]).present?
   raw_data = raw_data.select { |src_attrs| src_attrs["id_plan"] == id }
 end
 
-projects_data = filter_last_level_items(raw_data, plan_identifier).map { |src_attrs| transformed_project_attributes(src_attrs).merge(transformed_project_custom_fields(src_attrs, plan_identifier)) }
+levels = detect_levels(raw_data, plan_identifier)
+
+projects_data = filter_last_level_items(raw_data, plan_identifier, levels).map { |src_attrs| transformed_project_attributes(src_attrs).merge(transformed_project_custom_fields(src_attrs, plan_identifier)) }
 vocabularies_data = {
-  "categories_vocabulary_terms" => categories_vocabulary_terms(raw_data, plan_identifier),
+  "categories_vocabulary_terms" => categories_vocabulary_terms(raw_data, plan_identifier, levels),
   "statuses_vocabulary_terms" => statuses_vocabulary_terms(raw_data, plan_identifier)
 }
 
