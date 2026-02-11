@@ -24,7 +24,7 @@ pipeline {
         }
         stage('[PAM] Extract > Download data sources - Plans data') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_source_data.json"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_source_data.json"
             }
         }
         stage('[PAM] Transform > Transform data') {
@@ -39,7 +39,7 @@ pipeline {
         }
         stage('[Urban Agenda 2030] Extract > Download data sources - Plans data') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://aplicacions.mataro.org:444/apex/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/253522' --output-file ${WORKING_DIR}/urban_agenda_2030_source_data.json"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/253522' --output-file ${WORKING_DIR}/urban_agenda_2030_source_data.json"
             }
         }
         stage('[Urban Agenda 2030] Transform > Transform data') {
