@@ -10,7 +10,8 @@ pipeline {
         // Variables that must be defined via Jenkins UI:
         // GOBIERTO = "/var/www/gobierto/current"
         // API_HOST = "https://mataro.gobify.net"
-        // PAM_PLAN_ID = "52"
+        // PAM_PLAN_2023_ID = "52"
+        // PAM_PLAN_2027_ID = "63"
         // URBAN_AGENDA_2030_PLAN_ID = "53"
     }
     options {
@@ -22,19 +23,34 @@ pipeline {
               sh "rm -rf ${WORKING_DIR}"
           }
         }
-        stage('[PAM] Extract > Download data sources - Plans data') {
+        stage('[PAM 2023] Extract > Download data sources - Plans data') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_source_data.json"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_2023_source_data.json"
             }
         }
-        stage('[PAM] Transform > Transform data') {
+        stage('[PAM 2023] Transform > Transform data') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/PAM_source_data.json ${WORKING_DIR}/PAM_request_body.json PAM"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/PAM_2023_source_data.json ${WORKING_DIR}/PAM_2023_request_body.json PAM"
             }
         }
-        stage('[PAM] Load > Send create/update data to API') {
+        stage('[PAM 2023] Load > Send create/update data to API') {
             steps {
-                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/PAM_request_body.json ${API_HOST}/api/v1/plans/${PAM_PLAN_ID}"
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/PAM_2023_request_body.json ${API_HOST}/api/v1/plans/${PAM_2023_PLAN_ID}"
+            }
+        }
+        stage('[PAM 2027] Extract > Download data sources - Plans data') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_2027_source_data.json"
+            }
+        }
+        stage('[PAM 2027] Transform > Transform data') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/PAM_2027_source_data.json ${WORKING_DIR}/PAM_2027_request_body.json PAM"
+            }
+        }
+        stage('[PAM 2027] Load > Send create/update data to API') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/PAM_2027_request_body.json ${API_HOST}/api/v1/plans/${PAM_2027_PLAN_ID}"
             }
         }
         stage('[Urban Agenda 2030] Extract > Download data sources - Plans data') {
