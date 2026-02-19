@@ -1,0 +1,93 @@
+email = "popu-servers+jenkins@populate.tools "
+pipeline {
+    agent { label 'gobierto-transparencia' }
+    environment {
+        PATH = "$HOME/.rbenv/shims:$PATH"
+        GOBIERTO_ETL_UTILS = "/var/www/gobierto-etl-utils/current/"
+        MATARO_ETL = "/var/www/gobierto-etl-mataro/current/"
+        WORKING_DIR = "/tmp/mataro_plans"
+        MATARO_ID = "8121"
+        // Variables that must be defined via Jenkins UI:
+        // GOBIERTO = "/var/www/gobierto/current"
+        // API_HOST = "https://mataro.gobify.net"
+        // PAM_PLAN_2023_ID = "52"
+        // PAM_PLAN_2027_ID = "63"
+        // URBAN_AGENDA_2030_PLAN_ID = "53"
+    }
+    options {
+        retry(3)
+    }
+    stages {
+        stage('Clean working dir') {
+          steps {
+              sh "rm -rf ${WORKING_DIR}"
+          }
+        }
+        stage('[PAM 2023] Extract > Download data sources - Plans data') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_2023_source_data.json"
+            }
+        }
+        stage('[PAM 2023] Transform > Transform data') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/PAM_2023_source_data.json ${WORKING_DIR}/PAM_2023_request_body.json PAM"
+            }
+        }
+        stage('[PAM 2023] Load > Send create/update data to API') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/PAM_2023_request_body.json ${API_HOST}/api/v1/plans/${PAM_2023_PLAN_ID}"
+            }
+        }
+        stage('[PAM 2027] Extract > Download data sources - Plans data') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_2027_source_data.json"
+            }
+        }
+        stage('[PAM 2027] Transform > Transform data') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/PAM_2027_source_data.json ${WORKING_DIR}/PAM_2027_request_body.json PAM"
+            }
+        }
+        stage('[PAM 2027] Load > Send create/update data to API') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/PAM_2027_request_body.json ${API_HOST}/api/v1/plans/${PAM_2027_PLAN_ID}"
+            }
+        }
+        stage('[Urban Agenda 2030] Extract > Download data sources - Plans data') {
+            steps {
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/253522' --output-file ${WORKING_DIR}/urban_agenda_2030_source_data.json"
+            }
+        }
+        stage('[Urban Agenda 2030] Transform > Transform data') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/transform-projects/run.rb ${WORKING_DIR}/urban_agenda_2030_source_data.json ${WORKING_DIR}/urban_agenda_2030_request_body.json urban_agenda_2030"
+            }
+        }
+        stage('[Urban Agenda 2030] Load > Send create/update data to API') {
+            steps {
+                sh "cd ${MATARO_ETL}; ruby operations/gobierto_plans/upsert-projects/run.rb ${WORKING_DIR}/urban_agenda_2030_request_body.json ${API_HOST}/api/v1/plans/${URBAN_AGENDA_2030_PLAN_ID}"
+            }
+        }
+        stage('Load > Publish activity') {
+            steps {
+                sh "echo ${MATARO_ID} > ${WORKING_DIR}/organization.id.txt"
+
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/publish-activity/run.rb plans_projects_updated ${WORKING_DIR}/organization.id.txt"
+            }
+        }
+        stage('Clear cache') {
+            steps {
+                sh "cd ${GOBIERTO}; bin/rails runner ${GOBIERTO_ETL_UTILS}/operations/gobierto/clear-cache/run.rb --site-organization-id '${MATARO_ID}' --namespace 'GobiertoPlans'"
+            }
+        }
+    }
+    post {
+        failure {
+            echo 'This will run only if failed'
+            mail body: "Project: ${env.JOB_NAME} - Build Number: ${env.BUILD_NUMBER} - URL de build: ${env.BUILD_URL}",
+                charset: 'UTF-8',
+                subject: "ERROR CI: Project name -> ${env.JOB_NAME}",
+                to: email
+        }
+    }
+}
