@@ -13,6 +13,7 @@ pipeline {
         // PAM_2023_PLAN_ID = "52"
         // PAM_2027_PLAN_ID = "63"
         // URBAN_AGENDA_2030_PLAN_ID = "53"
+        // PREVIEW_TOKEN = "K9WQdZgeyobc9ZaR7mUs5jFC"
     }
     options {
         retry(3)
