@@ -25,7 +25,7 @@ pipeline {
         }
         stage('[PAM 2023] Extract > Download data sources - Plans data') {
             steps {
-                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872?preview_token=${PREVIEW_TOKEN}' --output-file ${WORKING_DIR}/PAM_2023_source_data.json"
+                sh "cd ${GOBIERTO_ETL_UTILS}; ruby operations/api-download/run.rb --source-url 'https://apex.mataro.org/ords/rest/sigmav2/getjson/SIGMA/SEGUIMENT/id_plan/201872' --output-file ${WORKING_DIR}/PAM_2023_source_data.json"
             }
         }
         stage('[PAM 2023] Transform > Transform data') {
