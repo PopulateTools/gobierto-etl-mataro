@@ -30,13 +30,15 @@ SOURCE_PLANS_CONFIGURATIONS = {
     projects_level: "7",
     vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct),
     string_custom_fields: %w(codi descripcio),
-    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction]
+    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction],
+    reset_plan: true
   },
   "urban_agenda_2030" => {
     projects_level: "4",
     vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct),
     string_custom_fields: %w(codi descripcio),
-    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction]
+    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction],
+    reset_plan: false
   }
 }
 
@@ -167,10 +169,11 @@ def statuses_vocabulary_terms(source_data, _plan_identifier)
   end
 end
 
-def request_body(projects_data, vocabularies_data = {})
+def request_body(projects_data, vocabularies_data = {}, reset_plan = false)
   {
     "data" => {
       "attributes" => vocabularies_data.merge(
+        "reset_plan" => reset_plan,
         "projects" => projects_data
       )
     }
@@ -190,6 +193,8 @@ if (id = SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:id]).present?
   raw_data = raw_data.select { |src_attrs| src_attrs["id_plan"] == id }
 end
 
+reset_plan = SOURCE_PLANS_CONFIGURATIONS[plan_identifier].fetch(:reset_plan, false)
+
 levels = detect_levels(raw_data, plan_identifier)
 
 projects_data = filter_last_level_items(raw_data, plan_identifier, levels).map { |src_attrs| transformed_project_attributes(src_attrs).merge(transformed_project_custom_fields(src_attrs, plan_identifier)) }
@@ -198,7 +203,7 @@ vocabularies_data = {
   "statuses_vocabulary_terms" => statuses_vocabulary_terms(raw_data, plan_identifier)
 }
 
-File.write(destination_path, request_body(projects_data, vocabularies_data))
+File.write(destination_path, request_body(projects_data, vocabularies_data, reset_plan))
 puts "\tCreated transformed file #{destination_path}"
 
 puts "[END] [#{plan_identifier}] transform-projects/run.rb"
