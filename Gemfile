@@ -8,3 +8,4 @@ gem "gobierto_budgets_data", git: "https://github.com/PopulateTools/gobierto_bud
 gem "http"
 gem "byebug"
 gem "csv"
+gem "ostruct"
