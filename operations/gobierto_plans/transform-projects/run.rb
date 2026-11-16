@@ -28,9 +28,16 @@ plan_identifier = ARGV[2]
 SOURCE_PLANS_CONFIGURATIONS = {
   "PAM" => {
     projects_level: "7",
-    vocabulary_custom_fields: %w(l_valoracions nom_responsable NomOUAct),
+    vocabulary_custom_fields: {
+      "l_valoracions" => { multiple_options: false, default_attribute: "nom" },
+      "nom_responsable" => { multiple_options: false },
+      "NomOUAct" => { multiple_options: false },
+      "l_responsable_politic" => { multiple_options: true, default_attribute: "nom" },
+      "l_zones" => { multiple_options: true, default_attribute: "nom" },
+      "l_ods" => { multiple_options: true, default_attribute: "codi" }
+    },
     string_custom_fields: %w(codi descripcio),
-    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction],
+    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction, :subactions_custom_field_extraction],
     reset_plan: true
   },
   "urban_agenda_2030" => {
@@ -68,11 +75,15 @@ def status_external_id(src_attrs)
   src_attrs["l_estats"].first&.dig("codi") || "unknown"
 end
 
-def vocabulary_custom_field(src_attrs, name)
+def vocabulary_custom_field(src_attrs, name, multiple_options: false, default_attribute: "nom")
   val = src_attrs[name]
-  return val if val.is_a?(String)
+  if val.is_a?(String)
+    multiple_options ? [val] : val
+  else
+    values = val.compact.map { |item| item.dig(default_attribute) || "Indeterminat" }
 
-  src_attrs[name]&.first&.dig("nom") || "Indeterminat"
+    multiple_options ? values : values.first
+  end
 end
 
 def string_custom_field(src_attrs, name)
@@ -103,6 +114,17 @@ def comments_custom_field_extraction(src_attrs)
   { "custom_field_paragraph_l_comentaris" => comments_vals.map { |val| "* #{val["data"].split("/").map(&:to_i).join("/")}: #{val["valor"]}" }.join("\n") }
 end
 
+# Sent as the rows of a table custom field (uid "lsubaccioact") with a date
+# column "data" and a text column "nom". Always sent, empty when there are no
+# sub-actions, so removed sub-actions are also removed from the project
+def subactions_custom_field_extraction(src_attrs)
+  subactions = (src_attrs["lsubaccioAct"] || []).map do |val|
+    { "data" => val["DataSubaccio"]&.split("/")&.reverse&.join("-"), "nom" => val["NomSubaccio"] }
+  end
+
+  { "custom_field_table_lsubaccioact" => subactions.sort_by { |subaction| subaction["data"].to_s } }
+end
+
 def evolution_custom_field_extraction(src_attrs)
   return {} if (evolution_vals = src_attrs["l_trimestres"]).blank?
 
@@ -128,8 +150,8 @@ end
 def transformed_project_custom_fields(src_attributes, plan_identifier)
   return {} if SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:vocabulary_custom_fields].blank?
 
-  vals = SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:vocabulary_custom_fields].each_with_object({}) do |k, hsh|
-    hsh["custom_field_vocabulary_options_#{k.parameterize}"] = vocabulary_custom_field(src_attributes, k)
+  vals = SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:vocabulary_custom_fields].each_with_object({}) do |(k, opts), hsh|
+    hsh["custom_field_vocabulary_options_#{k.parameterize}"] = vocabulary_custom_field(src_attributes, k, **opts)
   end
 
   SOURCE_PLANS_CONFIGURATIONS[plan_identifier][:string_custom_fields].each_with_object(vals) do |k, hsh|
