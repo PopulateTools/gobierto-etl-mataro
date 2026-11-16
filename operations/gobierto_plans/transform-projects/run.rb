@@ -37,7 +37,7 @@ SOURCE_PLANS_CONFIGURATIONS = {
       "l_ods" => { multiple_options: true, default_attribute: "codi" }
     },
     string_custom_fields: %w(codi descripcio),
-    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction],
+    custom_fields_transformations: [:dates_custom_field_extraction, :evolution_custom_field_extraction, :comments_custom_field_extraction, :subactions_custom_field_extraction],
     reset_plan: true
   },
   "urban_agenda_2030" => {
@@ -112,6 +112,17 @@ def comments_custom_field_extraction(src_attrs)
 
   comments_vals = comments_vals.sort { |a, b| a["data"].split("/").reverse.join <=> b["data"].split("/").reverse.join }
   { "custom_field_paragraph_l_comentaris" => comments_vals.map { |val| "* #{val["data"].split("/").map(&:to_i).join("/")}: #{val["valor"]}" }.join("\n") }
+end
+
+# Sent as the rows of a table custom field (uid "lsubaccioact") with a date
+# column "data" and a text column "nom". Always sent, empty when there are no
+# sub-actions, so removed sub-actions are also removed from the project
+def subactions_custom_field_extraction(src_attrs)
+  subactions = (src_attrs["lsubaccioAct"] || []).map do |val|
+    { "data" => val["DataSubaccio"]&.split("/")&.reverse&.join("-"), "nom" => val["NomSubaccio"] }
+  end
+
+  { "custom_field_table_lsubaccioact" => subactions.sort_by { |subaction| subaction["data"].to_s } }
 end
 
 def evolution_custom_field_extraction(src_attrs)
